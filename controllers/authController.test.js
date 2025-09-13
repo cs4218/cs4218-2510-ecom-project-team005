@@ -359,12 +359,191 @@ describe('Auth controllers tests', () => {
         });
     });
 
+    describe("forgotPasswordController_tests", () => {
+        let req;
+        let res;
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+
+            req = { body: {} };
+            res = {
+                status: jest.fn(() => res),
+                send: jest.fn(),
+                json: jest.fn(),
+            };
+        });
+
+        test("missing email", async () => {
+            req.body = { answer: "Blue", newPassword: "newPass123" };
+            await forgotPasswordController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: "Email is required",
+                })
+            );
+        });
+
+        test("missing answer", async () => {
+            req.body = { email: "alice@example.com", newPassword: "newPass123" };
+            await forgotPasswordController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: "Answer is required",
+                })
+            );
+        });
+
+        test("missing new password", async () => {
+            req.body = { email: "alice@example.com", answer: "Blue" };
+            await forgotPasswordController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: "New Password is required",
+                })
+            );
+        });
+
+        test("wrong email or answer", async () => {
+            req.body = {
+                email: "alice@example.com",
+                answer: "Blue",
+                newPassword: "newPass123",
+            };
+
+            // No matching user
+            userModel.findOne.mockResolvedValueOnce(null);
+
+            await forgotPasswordController(req, res);
+
+            expect(userModel.findOne).toHaveBeenCalledWith({
+                email: "alice@example.com",
+                answer: "Blue",
+            });
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: "Wrong Email Or Answer",
+                })
+            );
+        });
+
+        test("successful reset", async () => {
+            req.body = {
+                email: "alice@example.com",
+                answer: "Blue",
+                newPassword: "newPass123",
+            };
+
+            const mockUser = { _id: "fakeid123", email: "alice@example.com" };
+            userModel.findOne.mockResolvedValueOnce(mockUser);
+            hashPassword.mockResolvedValueOnce("hashedNewPassword");
+            userModel.findByIdAndUpdate.mockResolvedValueOnce({
+                ...mockUser,
+                password: "hashedNewPassword",
+            });
+
+            await forgotPasswordController(req, res);
+
+            expect(hashPassword).toHaveBeenCalledWith("newPass123");
+            expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                "fakeid123",
+                { password: "hashedNewPassword" },
+               // { new: true }
+            );
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    message: "Password Reset Successfully",
+                })
+            );
+        });
+
+        test("unexpected error", async () => {
+            req.body = {
+                email: "alice@example.com",
+                answer: "Blue",
+                newPassword: "newPass123",
+            };
+
+            const fakeError = new Error("DB is down");
+            userModel.findOne.mockImplementationOnce(() => {
+                throw fakeError;
+            });
+
+            await forgotPasswordController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.send).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    message: "Something went wrong",
+                    error: fakeError,
+                })
+            );
+        });
+    });
+
+
+    describe("testController_tests", () => {
+        let req, res;
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+
+            req = {}; // no body needed
+            res = {
+                send: jest.fn(),
+                status: jest.fn(() => res), // chainable
+            };
+        });
+
+        test("should return success message", () => {
+            // Act
+            testController(req, res);
+
+            // Assert
+            expect(res.send).toHaveBeenCalledWith("Protected Routes");
+            // optional: check that status was not explicitly called (still 200 by default)
+            expect(res.status).not.toHaveBeenCalled();
+        });
+
+
+        //maybe not necessary
+        test("should handle error", () => {
+            // mock console.log to suppress output
+            console.log = jest.fn();
+
+            // Make res.send throw an error to simulate failure
+            const originalSend = res.send;
+            res.send = jest.fn(() => { throw new Error("fail"); });
+
+            // Act
+            try {
+                testController(req, res);
+            } catch (err) {
+                // catch to prevent Jest from failing
+            }
+
+            // Assert: controller tried to call res.send in catch block
+            expect(console.log).toHaveBeenCalledWith(expect.any(Error));
+
+            // restore send
+            res.send = originalSend;
+        });
+
+    });
+
 
 });
-
-
-
-
-
-
-

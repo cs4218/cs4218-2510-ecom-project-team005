@@ -121,28 +121,48 @@ export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
     /*
-    Here all ifs are gone through instead of stopping at the first one
+    Here all ifs are gone through instead of stopping. Missing return ==> first 3 tests therefore also do not pass
     */
     if (!email) {
-      res.status(400).send({ message: "Emai is required" });
+      //old: res.status(400).send({ message: "Email is required" }); //typo "Emai is required" fixed
+
+        //new:
+        return res.status(400).send({
+            success: false,
+            message: "Email is required",
+        });
+
     }
     if (!answer) {
-      res.status(400).send({ message: "answer is required" });
+    //old:  res.status(400).send({ message: "Answer is required" }); //a in answer capital (fix)
+
+        //new:
+        return res.status(400).send({
+            success: false,
+            message: "Answer is required",
+        });
     }
     if (!newPassword) {
-      res.status(400).send({ message: "New Password is required" });
+     //old: res.status(400).send({ message: "New Password is required" });
+
+        //new:
+        return res.status(400).send({
+            success: false,
+            message: "New Password is required",
+        });
+
     }
     //check
     const user = await userModel.findOne({ email, answer });
     //validation
     if (!user) {
-      return res.status(404).send({
+     return res.status(404).send({
         success: false,
         message: "Wrong Email Or Answer",
       });
     }
     const hashed = await hashPassword(newPassword);
-    await userModel.findByIdAndUpdate(user._id, { password: hashed });
+    await userModel.findByIdAndUpdate(user._id, { password: hashed }); // maybe add , {new: true}
     res.status(200).send({
       success: true,
       message: "Password Reset Successfully",
