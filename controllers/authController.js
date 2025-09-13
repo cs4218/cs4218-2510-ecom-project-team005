@@ -30,7 +30,7 @@ export const registerController = async (req, res) => {
     const exisitingUser = await userModel.findOne({ email });
     //exisiting user
     if (exisitingUser) {
-      return res.status(200).send({
+      return res.status(409).send({ //this shouldn't be status 200, because it's not successfull ==> fixed
         success: false,
         message: "Already Register please login",
       });
@@ -56,7 +56,7 @@ export const registerController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Errro in Registeration",
+      message: "Error in Registration", //typo "Errro in Registeration" ==> fixed
       error,
     });
   }
@@ -68,7 +68,7 @@ export const loginController = async (req, res) => {
     const { email, password } = req.body;
     //validation
     if (!email || !password) {
-      return res.status(404).send({
+      return res.status(400).send({ //Should be 400 bad request instead of 404 ==> fixed
         success: false,
         message: "Invalid email or password",
       });
@@ -76,16 +76,16 @@ export const loginController = async (req, res) => {
     //check user
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.status(404).send({
+      return res.status(400).send({
         success: false,
-        message: "Email is not registerd",
+        message: "Invalid email or password", //typo // gives information and opportunitys for side channel attacks ==> changed to generic version
       });
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
-      return res.status(200).send({
+      return res.status(400).send({ // Should also not be 200 OK ==> fixed to 401
         success: false,
-        message: "Invalid Password",
+        message: "Invalid email or password", // invalid password opens doors for side channel attack same as for email ==> fixed it to a genereic response
       });
     }
     //token
@@ -120,6 +120,9 @@ export const loginController = async (req, res) => {
 export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
+    /*
+    Here all ifs are gone through instead of stopping at the first one
+    */
     if (!email) {
       res.status(400).send({ message: "Emai is required" });
     }
@@ -157,7 +160,7 @@ export const forgotPasswordController = async (req, res) => {
 //test controller
 export const testController = (req, res) => {
   try {
-    res.send("Protected Routes");
+    res.send("Protected Routes");  // String instead of JSON
   } catch (error) {
     console.log(error);
     res.send({ error });
@@ -171,12 +174,12 @@ export const updateProfileController = async (req, res) => {
     const user = await userModel.findById(req.user._id);
     //password
     if (password && password.length < 6) {
-      return res.json({ error: "Passsword is required and 6 character long" });
+      return res.json({ error: "Passsword is required and 6 character long" }); //typo
     }
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
-      {
+      { // email is missing
         name: name || user.name,
         password: hashedPassword || user.password,
         phone: phone || user.phone,
@@ -186,14 +189,14 @@ export const updateProfileController = async (req, res) => {
     );
     res.status(200).send({
       success: true,
-      message: "Profile Updated SUccessfully",
+      message: "Profile Updated SUccessfully", // typo
       updatedUser,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Update profile",
+      message: "Error WHile Update profile", //typo
       error,
     });
   }
@@ -211,7 +214,7 @@ export const getOrdersController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error WHile Geting Orders",
+      message: "Error WHile Geting Orders", //typo
       error,
     });
   }
@@ -223,13 +226,13 @@ export const getAllOrdersController = async (req, res) => {
       .find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createdAt: "-1" });
+      .sort({ createdAt: "-1" }); // -1 is string not int
     res.json(orders);
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error WHile Geting Orders",
+      message: "Error WHile Geting Orders", // 2 typos
       error,
     });
   }
@@ -250,7 +253,7 @@ export const orderStatusController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error While Updateing Order",
+      message: "Error While Updateing Order", //2 typos
       error,
     });
   }
