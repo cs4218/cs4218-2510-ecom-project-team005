@@ -22,7 +22,7 @@ jest.mock('../../context/search', () => ({
     useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
   }));
 
-//jest.mock("../../hooks/useCategory", () => jest.fn(() => [])) // Lab 2 solution
+jest.mock("../../hooks/useCategory", () => jest.fn(() => [])) // Lab 2 solution
 
   Object.defineProperty(window, 'localStorage', {
     value: {
@@ -96,4 +96,72 @@ describe('Register Component', () => {
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith('Something went wrong');
   });
+
+    it('should allow typing in inputs', () => {
+        const { getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.change(getByPlaceholderText('Enter Your Name'), { target: { value: 'John Doe' } });
+        fireEvent.change(getByPlaceholderText('Enter Your Email'), { target: { value: 'test@example.com' } });
+        fireEvent.change(getByPlaceholderText('Enter Your Password'), { target: { value: 'password123' } });
+        fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
+        fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
+        fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
+        fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+
+        expect(getByPlaceholderText('Enter Your Name').value).toBe('John Doe');
+        expect(getByPlaceholderText('Enter Your Email').value).toBe('test@example.com');
+        expect(getByPlaceholderText('Enter Your Password').value).toBe('password123');
+        expect(getByPlaceholderText('Enter Your Phone').value).toBe('1234567890');
+        expect(getByPlaceholderText('Enter Your Address').value).toBe('123 Street');
+        expect(getByPlaceholderText('Enter Your DOB').value).toBe('2000-01-01');
+        expect(getByPlaceholderText('What is Your Favorite sports').value).toBe('Football');
+    });
+
+
+    it('inputs should be initially empty', () => {
+        const { getByText, getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        expect(getByText('REGISTER FORM')).toBeInTheDocument();
+
+        expect(getByPlaceholderText('Enter Your Name').value).toBe('');
+        expect(getByPlaceholderText('Enter Your Email').value).toBe('');
+        expect(getByPlaceholderText('Enter Your Password').value).toBe('');
+        expect(getByPlaceholderText('Enter Your Phone').value).toBe('');
+        expect(getByPlaceholderText('Enter Your Address').value).toBe('');
+        expect(getByPlaceholderText('Enter Your DOB').value).toBe('');
+        expect(getByPlaceholderText('What is Your Favorite sports').value).toBe('');
+    });
+
+
+    it('renders register form', () => {
+        const { getByText, getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        expect(getByText('REGISTER FORM')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your Name')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your Email')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your Password')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your Phone')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your Address')).toBeInTheDocument();
+        expect(getByPlaceholderText('Enter Your DOB')).toBeInTheDocument();
+        expect(getByPlaceholderText('What is Your Favorite sports')).toBeInTheDocument();
+    });
+
 });
