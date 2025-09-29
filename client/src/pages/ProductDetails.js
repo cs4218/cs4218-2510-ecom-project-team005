@@ -3,14 +3,17 @@ import Layout from "./../components/Layout";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/ProductDetailsStyles.css";
+import { useCart } from "../context/cart";
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const [cart, setCart] = useCart();
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
 
-  //initalp details
+  //initial details
   useEffect(() => {
     if (params?.slug) getProduct();
   }, [params?.slug]);
@@ -37,17 +40,24 @@ const ProductDetails = () => {
       console.log(error);
     }
   };
-  return (
-    <Layout>
-      <div className="row container product-details">
-        <div className="col-md-6">
-          <img
-            src={`/api/v1/product/product-photo/${product._id}`}
-            className="card-img-top"
-            alt={product.name}
-            height="300"
-            width={"350px"}
-          />
+  return ( // I added a loading animation as before that there was a bug, that the image load would fail as it would create a request to the backend with an undefined product id
+    <Layout> 
+      <div className="row container product-details"> 
+        <div className="col-md-6 d-flex align-items-center justify-content-center" style={{ minHeight: "300px" }}>
+          {!product._id ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ width: "350px", height: "300px" }}>
+              <div className="spinner-border text-primary" role="status" style={{ width: "3rem", height: "3rem" }}>
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <img // made the image not streched anymore
+              src={`/api/v1/product/product-photo/${product._id}`}
+              className="card-img-top"
+              alt={product.name}
+              style={{ maxWidth: "100%", maxHeight: "500px", objectFit: "contain" }}
+            />
+          )}
         </div>
         <div className="col-md-6 product-details-info">
           <h1 className="text-center">Product Details</h1>
@@ -62,7 +72,21 @@ const ProductDetails = () => {
             })}
           </h6>
           <h6>Category : {product?.category?.name}</h6>
-          <button class="btn btn-secondary ms-1">ADD TO CART</button>
+          <button
+            className="btn btn-secondary ms-1"
+            disabled={!product?._id}
+            onClick={() => {
+              if (!product?._id) return;
+              setCart([...cart, product]);
+              localStorage.setItem(
+                "cart",
+                JSON.stringify([...cart, product])
+              );
+              toast.success("Item Added to cart");
+            }}
+          >
+            ADD TO CART
+          </button>
         </div>
       </div>
       <hr />
@@ -99,19 +123,20 @@ const ProductDetails = () => {
                   >
                     More Details
                   </button>
-                  {/* <button
-                  className="btn btn-dark ms-1"
-                  onClick={() => {
-                    setCart([...cart, p]);
-                    localStorage.setItem(
-                      "cart",
-                      JSON.stringify([...cart, p])
-                    );
-                    toast.success("Item Added to cart");
-                  }}
-                >
-                  ADD TO CART
-                </button> */}
+                  { <button
+                      className="btn btn-dark ms-1"
+                      onClick={() => {
+                        setCart([...cart, p]);
+                        localStorage.setItem(
+                          "cart",
+                          JSON.stringify([...cart, p])
+                        );
+                        toast.success("Item Added to cart");
+                      }}
+                    >
+                      ADD TO CART
+                    </button>
+                  }
                 </div>
               </div>
             </div>
