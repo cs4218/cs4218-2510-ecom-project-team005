@@ -3,23 +3,52 @@ import Layout from "../components/Layout";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/CategoryProductStyles.css";
 import axios from "axios";
+import { useCart } from "../context/cart";
+import toast from "react-hot-toast";
+
 const CategoryProduct = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState([]);
+  const [category, setCategory] = useState({});
+  const [page, setPage] = useState(1);
+  const [cart, setCart] = useCart();
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (params?.slug) getPrductsByCat();
+    if (params?.slug) {
+      getPrductsByCat();
+      getTotal();
+    }
   }, [params?.slug]);
+
+  useEffect(() => {
+    if (page === 1) return;
+    getPrductsByCat();
+  }, [page]);
+
+   //getTotal Count
+   const getTotal = async () => {
+    try {
+      const { data } = await axios.get(`/api/v1/product/product-category-count/${params.slug}`);
+      setTotal(data?.total);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getPrductsByCat = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(
-        `/api/v1/product/product-category/${params.slug}`
+        `/api/v1/product/product-category/${params.slug}/${page}`
       );
-      setProducts(data?.products);
+      setProducts([...products, ...data?.products]);
       setCategory(data?.category);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -27,8 +56,8 @@ const CategoryProduct = () => {
   return (
     <Layout>
       <div className="container mt-3 category">
-        <h4 className="text-center">Category - {category?.name}</h4>
-        <h6 className="text-center">{products?.length} result found </h6>
+        <h4 className="text-center" data-testid="category-title">Category - {category?.name}</h4>
+        <h6 className="text-center">{total} result found </h6>
         <div className="row">
           <div className="col-md-9 offset-1">
             <div className="d-flex flex-wrap">
@@ -59,7 +88,7 @@ const CategoryProduct = () => {
                       >
                         More Details
                       </button>
-                      {/* <button
+                      { <button
                     className="btn btn-dark ms-1"
                     onClick={() => {
                       setCart([...cart, p]);
@@ -71,13 +100,13 @@ const CategoryProduct = () => {
                     }}
                   >
                     ADD TO CART
-                  </button> */}
+                  </button> }
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            {/* <div className="m-2 p-3">
+            { <div className="m-2 p-3">
             {products && products.length < total && (
               <button
                 className="btn btn-warning"
@@ -89,7 +118,7 @@ const CategoryProduct = () => {
                 {loading ? "Loading ..." : "Loadmore"}
               </button>
             )}
-          </div> */}
+          </div> }
           </div>
         </div>
       </div>

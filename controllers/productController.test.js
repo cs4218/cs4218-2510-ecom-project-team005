@@ -59,6 +59,7 @@ let updateProductController;
 let productFiltersController;
 let productCountController;
 let productListController;
+let productCategoryCountController;
 let searchProductController;
 let realtedProductController;
 let productCategoryController;
@@ -81,6 +82,7 @@ beforeAll(async () => {
         productListController,
         searchProductController,
         realtedProductController,
+        productCategoryCountController,
         productCategoryController,
         braintreeTokenController,
         brainTreePaymentController
@@ -871,25 +873,39 @@ describe('Product Controller', () => {
 
     describe('productCategory', () => {
         // Testing Strategy: branch coverage
-        it('should return products for a category', async () => {
-            //arrange
-            const req = { params: { slug: 'cat-slug' } };
+        it('should return paginated products for a category', async () => {
+            // arrange
+            const req = { params: { slug: 'cat-slug', page: 2 } };
             const mockCategory = { _id: 'cat-id' };
             const products = ['p1'];
-            mockCategoryModel.findOne.mockResolvedValue(mockCategory);
-            mockProductModel.find = jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(products) });
+            const mockSelect = jest.fn().mockReturnThis();
+            const mockSkip = jest.fn().mockReturnThis();
+            const mockLimit = jest.fn().mockReturnThis();
+            const mockSort = jest.fn().mockResolvedValue(products);
 
-            //act
+            mockCategoryModel.findOne.mockResolvedValue(mockCategory);
+            mockProductModel.find = jest.fn().mockReturnValue({
+                select: mockSelect,
+                skip: mockSkip,
+                limit: mockLimit,
+                sort: mockSort,
+            });
+
+            // act
             await productCategoryController(req, mockRes);
 
-            //assert
+            // assert
             expect(mockCategoryModel.findOne).toHaveBeenCalledWith({ slug: 'cat-slug' });
-            expect(mockProductModel.find).toHaveBeenCalledWith({ category: mockCategory });
+            expect(mockProductModel.find).toHaveBeenCalledWith({ category: mockCategory._id });
+            expect(mockSelect).toHaveBeenCalledWith('-photo');
+            expect(mockSkip).toHaveBeenCalledWith(6);
+            expect(mockLimit).toHaveBeenCalledWith(6);
+            expect(mockSort).toHaveBeenCalledWith({ createdAt: -1 });
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: true,
                 category: mockCategory,
-                products
+                products,
             });
         });
 
@@ -908,6 +924,61 @@ describe('Product Controller', () => {
                 success: false,
                 error: mockError.message,
                 message: 'Error fetching category products'
+            });
+        });
+    });
+
+    describe('productCategoryCount', () => {
+        // Testing Strategy: branch coverage
+        it('should return total count for category', async () => {
+            // arrange
+            const req = { params: { slug: 'cat-slug' } };
+            const mockCategory = { _id: 'cat-id' };
+            const mockCount = 10;
+            const mockCountDocuments = jest.fn().mockResolvedValue(mockCount);
+
+            mockCategoryModel.findOne.mockResolvedValue(mockCategory);
+            mockProductModel.find = jest.fn().mockReturnValue({
+                countDocuments: mockCountDocuments
+            });
+
+            // act
+            await productCategoryCountController(req, mockRes);
+
+            // assert
+            expect(mockCategoryModel.findOne).toHaveBeenCalledWith({ slug: 'cat-slug' });
+            expect(mockProductModel.find).toHaveBeenCalledWith({ category: 'cat-id' });
+            expect(mockCountDocuments).toHaveBeenCalled();
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.send).toHaveBeenCalledWith({
+                success: true,
+                total: mockCount
+            });
+        });
+
+        it('should send 500 when count fails', async () => {
+            // arrange
+            const req = { params: { slug: 'cat-slug' } };
+            const mockCategory = { _id: 'cat-id' };
+            const mockError = new Error('Count failure');
+            const mockCountDocuments = jest.fn().mockRejectedValue(mockError);
+
+            mockCategoryModel.findOne.mockResolvedValue(mockCategory);
+            mockProductModel.find = jest.fn().mockReturnValue({
+                countDocuments: mockCountDocuments
+            });
+
+            // act
+            await productCategoryCountController(req, mockRes);
+
+            // assert
+            expect(mockCategoryModel.findOne).toHaveBeenCalledWith({ slug: 'cat-slug' });
+            expect(mockProductModel.find).toHaveBeenCalledWith({ category: 'cat-id' });
+            expect(mockRes.status).toHaveBeenCalledWith(500);
+            expect(mockRes.send).toHaveBeenCalledWith({
+                success: false,
+                message: 'Error counting category products',
+                error: mockError.message
             });
         });
     });
@@ -940,7 +1011,7 @@ describe('Product Controller', () => {
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: false,
                 message: 'Error generating payment token',
-                error: 'token error'
+                error: ''
             });
         });
     });

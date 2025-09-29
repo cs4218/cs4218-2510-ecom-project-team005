@@ -244,6 +244,27 @@ export const productCountController = async (req, res) => {
   }
 };
 
+export const productCategoryCountController = async (req, res) => {
+  try {
+    const category = await categoryModel.findOne({ slug: req.params.slug });
+    const total = await productModel
+      .find({ category: category._id })
+      .countDocuments();
+
+    res.status(200).send({
+      success: true,
+      total,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error counting category products",
+      error: error.message,
+    });
+  }
+};
+
 // product list base on page
 export const productListController = async (req, res) => {
   try {
@@ -318,11 +339,19 @@ export const realtedProductController = async (req, res) => {
   }
 };
 
-// get prdocyst by catgory
+// get products by catgory
 export const productCategoryController = async (req, res) => {
   try {
+    const perPage = 6;
+    const page = req.params.page ? req.params.page : 1;
+
     const category = await categoryModel.findOne({ slug: req.params.slug });
-    const products = await productModel.find({ category }).populate("category");
+    const products = await productModel
+      .find({ category: category._id })
+      .select("-photo")
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .sort({ createdAt: -1 });
     res.status(200).send({
       success: true,
       category,
@@ -384,7 +413,7 @@ export const brainTreePaymentController = async (req, res) => {
           }).save();
           res.json({ ok: true });
         } else {
-          res.status(500).send(error);
+          throw new Error(error)
         }
       }
     );
