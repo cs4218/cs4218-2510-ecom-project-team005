@@ -102,7 +102,7 @@ const Register = () => {
           </div>
           <div className="mb-3">
             <input
-              type="Date"
+              type="date" //uppercase D before. Technically wrong
               value={DOB}
               onChange={(e) => setDOB(e.target.value)}
               className="form-control"

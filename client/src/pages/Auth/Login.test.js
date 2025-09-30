@@ -20,7 +20,10 @@ jest.mock('../../context/auth', () => ({
     
 jest.mock('../../context/search', () => ({
     useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
-  }));  
+  }));
+
+jest.mock("../../hooks/useCategory", () => jest.fn(() => [])) // Lab 2 solution
+
 
   Object.defineProperty(window, 'localStorage', {
     value: {
@@ -30,6 +33,9 @@ jest.mock('../../context/search', () => ({
     },
     writable: true,
   });
+
+
+
 
 window.matchMedia = window.matchMedia || function() {
     return {
@@ -135,4 +141,80 @@ describe('Login Component', () => {
         await waitFor(() => expect(axios.post).toHaveBeenCalled());
         expect(toast.error).toHaveBeenCalledWith('Something went wrong');
     });
+
+    //new:
+    it('should display server error message when success=false', async () => { // for branch coverage metric
+        // Technique: Branch coverage (else branch)
+        axios.post.mockResolvedValueOnce({
+            data: { success: false, message: 'Invalid credentials' }
+        });
+
+        const { getByPlaceholderText, getByText } = render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.change(getByPlaceholderText('Enter Your Email'), { target: { value: 'test@example.com' } });
+        fireEvent.change(getByPlaceholderText('Enter Your Password'), { target: { value: 'password123' } });
+        fireEvent.click(getByText('LOGIN'));
+
+        await waitFor(() => expect(axios.post).toHaveBeenCalled());
+        expect(toast.error).toHaveBeenCalledWith('Invalid credentials');
+    });
+
+    //new:
+    it('should navigate to forgot-password page when link clicked', () => { //statement coverage
+        // Technique: Control-flow / link navigation coverage
+        const { getByText } = render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<div>Forgot Password Page</div>} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.click(getByText('Forgot Password'));
+        expect(getByText('Forgot Password Page')).toBeInTheDocument();
+    });
+
+
+    /*
+    Technique: Specification-based / property testing:
+     */
+
+    it('should have email input with type=email and required attribute', () => {
+        // Technique: Specification-based / property testing
+        const { getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        const emailInput = getByPlaceholderText('Enter Your Email');
+        expect(emailInput).toHaveAttribute('type', 'email');
+        expect(emailInput).toHaveAttribute('required');
+    });
+
+    it('should have password input with type=password and required attribute', () => {
+        // Technique: Specification-based / property testing
+        const { getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        const passwordInput = getByPlaceholderText('Enter Your Password');
+        expect(passwordInput).toHaveAttribute('type', 'password');
+        expect(passwordInput).toHaveAttribute('required');
+    });
+
+
 });

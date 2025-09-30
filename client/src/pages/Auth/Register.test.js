@@ -164,4 +164,122 @@ describe('Register Component', () => {
         expect(getByPlaceholderText('What is Your Favorite sports')).toBeInTheDocument();
     });
 
+    //new:
+    /* Technique: Branch coverage (server-side rejection / else branch)
+   Purpose: cover the case where request succeeds (HTTP) but res.data.success === false
+*/
+    it('branch: shows server message when res.data.success is false', async () => {
+        axios.post.mockResolvedValueOnce({ data: { success: false, message: 'User exists' } });
+
+        const { getByRole, getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.change(getByPlaceholderText(/Enter Your Name/i), { target: { value: 'John Doe' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Email/i), { target: { value: 'dup@example.com' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Password/i), { target: { value: 'password123' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: '1234567890' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: '123 Street' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: '2000-01-01' } });
+        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: 'Football' } });
+
+        fireEvent.click(getByRole('button', { name: /register/i }));
+
+        await waitFor(() => expect(axios.post).toHaveBeenCalled());
+        expect(toast.error).toHaveBeenCalledWith('User exists');
+    });
+
+
+
+    it('spec: calls axios.post with the correct payload', async () => {
+        axios.post.mockResolvedValueOnce({ data: { success: true } });
+
+        const payload = {
+            name: 'Alice',
+            email: 'alice@example.com',
+            password: 'securePass',
+            phone: '0987654321',
+            address: 'Somewhere 1',
+            DOB: '1990-05-05',
+            answer: 'Tennis'
+        };
+
+        const { getByRole, getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.change(getByPlaceholderText(/Enter Your Name/i), { target: { value: payload.name } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Email/i), { target: { value: payload.email } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Password/i), { target: { value: payload.password } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: payload.phone } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: payload.address } });
+        fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: payload.DOB } });
+        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: payload.answer } });
+
+        fireEvent.click(getByRole('button', { name: /register/i }));
+
+        await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
+        expect(axios.post).toHaveBeenCalledWith('/api/v1/auth/register', payload);
+    });
+
+
+    /* Technique: Branch coverage / Decision-table
+   Purpose: ensure success branch actually navigates to /login
+*/
+    it('branch: on success navigates to /login', async () => {
+        axios.post.mockResolvedValueOnce({ data: { success: true } });
+
+        const { getByRole, getByPlaceholderText, getByText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<div>LOGIN ROUTE</div>} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        fireEvent.change(getByPlaceholderText(/Enter Your Name/i), { target: { value: 'John Doe' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Email/i), { target: { value: 'test@example.com' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Password/i), { target: { value: 'password123' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: '1234567890' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: '123 Street' } });
+        fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: '2000-01-01' } });
+        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: 'Football' } });
+
+        fireEvent.click(getByRole('button', { name: /register/i }));
+
+        await waitFor(() => expect(axios.post).toHaveBeenCalled());
+        await waitFor(() => expect(getByText('LOGIN ROUTE')).toBeInTheDocument());
+    });
+
+
+    /* Technique: Specification-based / Defensive
+   Purpose: detect odd DOB type (component currently uses type="Date" which is suspicious)
+*/
+    it('spec: DOB input exists, required, and has a type attribute', () => {
+        const { getByPlaceholderText } = render(
+            <MemoryRouter initialEntries={['/register']}>
+                <Routes>
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        const dob = getByPlaceholderText(/Enter Your DOB/i);
+        expect(dob).toBeTruthy();
+        expect(dob).toHaveAttribute('required');
+
+        // If you want to *fail* when type !== 'date' (strict check), change to:
+         expect(dob).toHaveAttribute('type', 'date');
+        // For now we assert a type exists so we catch removal/mistype
+      //  expect(dob.getAttribute('type')).toBeTruthy();
+    });
 });
