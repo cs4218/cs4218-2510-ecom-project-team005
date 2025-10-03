@@ -1,7 +1,6 @@
 /**
  * Unit Tests for UserMenu.js Component
  * 
- * What's being tested:
  * - Static navigation menu content rendering (Dashboard title, Profile/Orders links)
  * - Navigation link attributes and href paths for user dashboard routes
  * - Component structure and text content display
