@@ -40,6 +40,16 @@ export const createProductController = async (req, res) => {
           .send({ error: "Photo is required and must be less than 1MB" }); // We assume photos are required
     }
 
+    /* File Type Validation */
+    /* BEFORE: Any file type accepted, potential code execution */
+    /* AFTER: Only safe image types allowed */
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(photo.type)) {
+      return res.status(400).send({
+        error: "Only image files are allowed"
+      });
+    }
+
     const products = new productModel({ ...req.fields, slug: slugify(name) });
     products.photo.data = fs.readFileSync(photo.path);
     products.photo.contentType = photo.type;
@@ -52,9 +62,12 @@ export const createProductController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    /* Error Object Format Consistency */
+    /* BEFORE: error object passed directly (inconsistent format) */
+    /* AFTER: error.message passed for consistent format */
     res.status(500).send({
       success: false,
-      error,
+      error: error.message,
       message: "Error creating product", // fix error message
     });
   }
@@ -131,6 +144,29 @@ export const productPhotoController = async (req, res) => {
 // delete controller
 export const deleteProductController = async (req, res) => {
   try {
+    /* Admin Authorization Check */
+    /* Only admins should be able to delete products */
+    /* BEFORE: Any logged-in user could delete all products */
+    /* AFTER: Only users with admin role can proceed with deletion */
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).send({
+        success: false,
+        message: "Admin access required",
+      });
+    }
+
+    /* ObjectId Format Check */
+    /* Invalid IDs crash the database query */
+    /* BEFORE: Server returns 500 error for malformed IDs */
+    /* AFTER: Clear 400 error for invalid ID format (no crash)*/
+    const mongoose = await import('mongoose');
+    if (!mongoose.default.Types.ObjectId.isValid(req.params.pid)) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid product ID format",
+      });
+    }
+
     const product = await productModel
       .findByIdAndDelete(req.params.pid)
       .select("-photo");
@@ -179,12 +215,49 @@ export const updateProductController = async (req, res) => {
           .send({ error: "Photo is required and must be less than 1MB" });
     }
 
+    /* Price Range Check */
+    /* BEFORE: Products could have negative prices like -$50 */
+    /* AFTER: Only positive prices allowed */
+    if (price < 0) {
+      return res.status(400).send({
+        error: "Price must be positive"
+      });
+    }
+
+    /* Quantity Range Check */
+    /* BEFORE: Products could have -10 items in stock */
+    /* AFTER: Only non-negative quantities allowed */
+    if (quantity < 0) {
+      return res.status(400).send({
+        error: "Quantity cannot be negative"
+      });
+    }
+
     const products = await productModel.findByIdAndUpdate(
       req.params.pid,
       { ...req.fields, slug: slugify(name) },
       { new: true }
     );
+
+    /* Product Existence Check */
+    /* Updating non-existent products should return 404 */
+    /* BEFORE: Null product causes crash when accessing .photo */
+    /* AFTER: Clear 404 error for missing products */
+    if (!products) {
+      return res.status(404).send({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    /* Photo Null Safety */
+    /* products.photo might be undefined/null */
+    /* BEFORE: "Cannot set properties of undefined" error */
+    /* AFTER: Initialize photo object if it doesn't exist */
     if (photo) {
+      if (!products.photo) {
+        products.photo = {};
+      }
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }

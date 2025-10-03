@@ -163,7 +163,7 @@ describe('Product Controller', () => {
                     photo: { 
                         size: 500000,
                         path: '/tmp/test-photo.jpg',
-                        type: 'jpeg'
+                        type: 'image/jpeg'
                     } 
                 }
             };
@@ -186,7 +186,7 @@ describe('Product Controller', () => {
             });
             expect(mockFs.readFileSync).toHaveBeenCalledWith('/tmp/test-photo.jpg');
             expect(mockProduct.photo.data).toBe(mockPhotoData);
-            expect(mockProduct.photo.contentType).toBe('jpeg');
+            expect(mockProduct.photo.contentType).toBe('image/jpeg');
             expect(mockProduct.save).toHaveBeenCalled();
             expect(mockRes.status).toHaveBeenCalledWith(201);
             expect(mockRes.send).toHaveBeenCalledWith({
@@ -210,7 +210,7 @@ describe('Product Controller', () => {
                     photo: { 
                         size: 500000,
                         path: '/tmp/test-photo.jpg',
-                        type: 'jpeg'
+                        type: 'image/jpeg'
                     } 
                 }
             };
@@ -231,7 +231,7 @@ describe('Product Controller', () => {
             expect(mockRes.status).toHaveBeenCalledWith(500);
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: false,
-                error: mockError,
+                error: "Database connection failed",
                 message: "Error creating product",
             });
         })
@@ -437,15 +437,19 @@ describe('Product Controller', () => {
 
         it('should delete product and respond with success when product exists', async () => {
             //arrange
-            const req = { params: { pid: 'existing-id' }, fields: {} };
-            const deletedProduct = { _id: 'existing-id' };
+            const req = { 
+                params: { pid: '507f1f77bcf86cd799439011' }, 
+                fields: {},
+                user: { _id: 'admin-id', role: 'admin' }
+            };
+            const deletedProduct = { _id: '507f1f77bcf86cd799439011' };
             chainableQuery.select.mockResolvedValue(deletedProduct);
 
             //act
             await deleteProductController(req, mockRes);
 
             //assert
-            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('existing-id');
+            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
             expect(chainableQuery.select).toHaveBeenCalledWith('-photo');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.send).toHaveBeenCalledWith({
@@ -456,14 +460,17 @@ describe('Product Controller', () => {
 
         it('should respond with 404 when product is not found', async () => {
             //arrange
-            const req = { params: { pid: 'missing-id' } };
+            const req = { 
+                params: { pid: '507f1f77bcf86cd799439022' },
+                user: { _id: 'admin-id', role: 'admin' }
+            };
             chainableQuery.select.mockResolvedValue(null);
 
             //act
             await deleteProductController(req, mockRes);
 
             //assert
-            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('missing-id');
+            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439022');
             expect(mockRes.status).toHaveBeenCalledWith(404);
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: false,
@@ -473,7 +480,10 @@ describe('Product Controller', () => {
 
         it('should send 500 response code and log error when deletion fails', async () => {
             //arrange
-            const req = { params: { pid: 'error-id' } };
+            const req = { 
+                params: { pid: '507f1f77bcf86cd799439033' },
+                user: { _id: 'admin-id', role: 'admin' }
+            };
             const mockError = new Error('Deletion failure');
             chainableQuery.select.mockRejectedValue(mockError);
 
@@ -481,7 +491,7 @@ describe('Product Controller', () => {
             await deleteProductController(req, mockRes);
 
             //assert
-            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('error-id');
+            expect(mockProductModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439033');
             expect(mockRes.status).toHaveBeenCalledWith(500);
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: false,
