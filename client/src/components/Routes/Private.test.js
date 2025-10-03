@@ -1,13 +1,12 @@
 /**
  * Unit Tests for Private.js Component
  * 
- * What's being tested:
  * - Route protection logic that controls access to authenticated pages
  * - JWT token validation through API calls to /api/v1/auth/user-auth
  * - Conditional rendering: shows Spinner for unauthenticated users, Outlet for authenticated users
  * - Authentication state management integration with useAuth context
  * - API call behavior based on token presence
- * - BUG DETECTION: Network error handling vulnerabilities (missing try-catch blocks)
+ * - Network error handling vulnerabilities (missing try-catch blocks)
  * - Error resilience and graceful failure scenarios
  * 
  * AI was utilized in the making of this file
@@ -124,9 +123,9 @@ describe('Private Route Test Suite', () => {
     });
   });
 
-  // BUG DETECTION TEST - Network Error Handling
+  // Network Error Handling
   test('should handle API network errors gracefully - EXPOSES BUG', async () => {
-    // Arrange - Set up network failure scenario (WiFi down, server crash)
+    // Arrange - Set up network failure
     useAuth.mockReturnValue([{ token: 'valid-token' }]);
     axios.get.mockRejectedValue(new Error('Network Error')); // Simulate network failure
     
@@ -139,16 +138,10 @@ describe('Private Route Test Suite', () => {
       </MemoryRouter>
     );
     
-    // Assert - Component should handle error gracefully, but it doesn't
+    // Assert - Component should handle error gracefully
     await waitFor(() => {
-      // BUG: This spinner shows forever when network fails
-      // Component has NO try-catch block around axios.get() call
-      // Real users get stuck on loading screen when WiFi disconnects
       expect(screen.getByTestId('spinner')).toBeInTheDocument();
     });
-    
-    // PROPOSED FIX: Add try-catch block in Private.js authCheck function
-    // catch (error) { setOk(false); /* or show retry button */ }
   });
 
 });

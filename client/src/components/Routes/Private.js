@@ -12,10 +12,9 @@ export default function PrivateRoute(){
     useEffect(()=> {
         const authCheck = async() => {
             try {
-                /* FIX: Added try-catch block to handle network errors */
                 /* BEFORE: If network fails (WiFi down, server crash), user gets stuck on spinner forever */
                 /* AFTER: Network errors are caught and handled gracefully */
-                
+                /* FIX: Added try-catch block to handle network errors */
                 const res = await axios.get("/api/v1/auth/user-auth");
                 if(res.data.ok){
                     setOk(true);
@@ -23,19 +22,8 @@ export default function PrivateRoute(){
                     setOk(false);
                 }
             } catch (error) {
-                /* CRITICAL FIX: Handle network failures */
-                /* WHY THIS WAS A BUG: */
-                /* - Users with poor internet got stuck on loading screen */
-                /* - No way to recover without refreshing page */
-                /* - Bad user experience during network issues */
-                
                 console.log("Network error during auth check:", error);
-                setOk(false); // Deny access on network error (fail-safe approach)
-                
-                /* ALTERNATIVE APPROACHES WE COULD TAKE: */
-                /* 1. setOk(false) - Current: Deny access (more secure) */
-                /* 2. Retry logic - Could add setTimeout to retry after delay */
-                /* 3. Show error message - Could set error state for user feedback */
+                setOk(false); // Deny access on network error
             }
         };
         if (auth?.token) authCheck();

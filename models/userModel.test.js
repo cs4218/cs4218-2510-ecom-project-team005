@@ -1,15 +1,14 @@
 /**
  * Unit Tests for userModel.js
  * 
- * What's being tested:
  * - Mongoose schema structure and field definitions (name, email, password, phone, address, answer, role)
  * - Field types, constraints, and validation rules (unique email, trim whitespace, required fields)
  * - Default values and schema options (role defaults to 0, timestamps enabled)
  * - Document creation and validation with both valid and invalid data
  * - Model export and MongoDB collection configuration
- * - BUG DETECTION: Missing email format validation (accepts invalid email formats)
- * - BUG DETECTION: Weak password security (no minimum length requirements)
- * - BUG DETECTION: Invalid phone number acceptance (no format validation)
+ * - Missing email format validation (accepts invalid email formats)
+ * - Weak password security (no minimum length requirements)
+ * - Invalid phone number acceptance (no format validation)
  * - Security vulnerabilities in data validation and input sanitization
  * 
  * AI was utilized in the making of this file
@@ -169,7 +168,7 @@ describe('User Model Test Suite', () => {
   });
 
   describe('Bug Detection Test Suite', () => {
-    // BUG DETECTION TEST - Email Validation Missing
+    // Email Validation Missing
     test('should reject invalid email formats - EXPOSES VALIDATION BUG', () => {
       // Arrange - Set up user data with invalid email
       const userDataInvalidEmail = {
@@ -186,27 +185,19 @@ describe('User Model Test Suite', () => {
       const validationError = user.validateSync();
       
       // Assert - Should fail validation and now it does (bug fixed!)
-      // FIXED: Schema now validates email format properly
+      // Schema now validates email format properly
       // Invalid emails like "abc", "123", "not@email" are properly rejected
       expect(validationError).toBeDefined(); // Validation error should exist for invalid email
       expect(validationError.errors.email).toBeDefined(); // Specific email error should exist
-      
-      // PROPOSED FIX: Add email validation to userModel.js
-      // email: {
-      //   type: String,
-      //   required: true,
-      //   unique: true,
-      //   match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
-      // }
     });
 
-    // BUG DETECTION TEST - Weak Password Acceptance
+    // Weak Password Acceptance
     test('should reject weak passwords - EXPOSES SECURITY BUG', () => {
       // Arrange - Set up user data with extremely weak password
       const userDataWeakPassword = {
         name: 'John Doe',
         email: 'john@example.com',
-        password: '1', // Extremely weak password
+        password: '1',
         phone: '1234567890',
         address: { street: '123 Main St' },
         answer: 'security answer'
@@ -216,28 +207,21 @@ describe('User Model Test Suite', () => {
       const user = new User(userDataWeakPassword);
       const validationError = user.validateSync();
       
-      // Assert - Should fail validation and now it does (bug fixed!)
-      // FIXED: Schema now enforces minimum password length
+      // Assert - Should fail validation
+      // Schema now enforces minimum password length
       // Weak passwords like "1", "a", "" are properly rejected
       expect(validationError).toBeDefined(); // Validation error should exist for weak password
       expect(validationError.errors.password).toBeDefined(); // Specific password error should exist
-      
-      // PROPOSED FIX: Add password validation to userModel.js
-      // password: {
-      //   type: String,
-      //   required: true,
-      //   minlength: [8, 'Password must be at least 8 characters long']
-      // }
     });
 
-    // BUG DETECTION TEST - Invalid Phone Number Acceptance
+    // Invalid Phone Number Acceptance
     test('should reject invalid phone numbers - EXPOSES VALIDATION BUG', () => {
       // Arrange - Set up user data with invalid phone number
       const userDataInvalidPhone = {
         name: 'John Doe',
         email: 'john@example.com', 
         password: 'password123',
-        phone: 'abc-not-a-phone', // Invalid phone format
+        phone: 'abc-not-a-phone',
         address: { street: '123 Main St' },
         answer: 'security answer'
       };
@@ -246,18 +230,11 @@ describe('User Model Test Suite', () => {
       const user = new User(userDataInvalidPhone);
       const validationError = user.validateSync();
       
-      // Assert - Should fail validation and now it does (bug fixed!)
-      // FIXED: Schema now validates phone number format
+      // Assert - Should fail validation
+      // Schema now validates phone number format
       // Invalid phone numbers like "abc", "!!!", "email@test.com" are properly rejected
       expect(validationError).toBeDefined(); // Validation error should exist for invalid phone
       expect(validationError.errors.phone).toBeDefined(); // Specific phone error should exist
-      
-      // PROPOSED FIX: Add phone validation to userModel.js
-      // phone: {
-      //   type: String,
-      //   required: true,
-      //   match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number']
-      // }
     });
   });
 });
