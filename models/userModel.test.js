@@ -167,9 +167,9 @@ describe('User Model Test Suite', () => {
     })
   });
 
-  describe('Bug Detection Test Suite', () => {
+  describe('Validation Test Suite', () => {
     // Email Validation Missing
-    test('should reject invalid email formats - EXPOSES VALIDATION BUG', () => {
+    test('should reject invalid email formats', () => {
       // Arrange - Set up user data with invalid email
       const userDataInvalidEmail = {
         name: 'John Doe',
