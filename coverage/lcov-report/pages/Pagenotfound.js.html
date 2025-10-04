@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for pages/Policy.js</title>
+    <title>Code coverage report for pages/Pagenotfound.js</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> Policy.js</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> Pagenotfound.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -81,17 +81,8 @@
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
 <a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a>
-<a name='L20'></a><a href='#L20'>20</a>
-<a name='L21'></a><a href='#L21'>21</a>
-<a name='L22'></a><a href='#L22'>22</a>
-<a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L19'></a><a href='#L19'>19</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -108,46 +99,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from "react";
+import { Link } from "react-router-dom";
 import Layout from "./../components/Layout";
 &nbsp;
-const Policy = () =&gt; {
+const Pagenotfound = () =&gt; {
   return (
-    &lt;Layout title={"Privacy Policy"}&gt;
-      &lt;div className="row contactus "&gt;
-        &lt;div className="col-md-6 "&gt;
-          &lt;img
-            src="/images/contactus.jpeg"
-            alt="contactus"
-            style={{ width: "100%" }}
-          /&gt;
-        &lt;/div&gt;
-        &lt;div className="col-md-4"&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-        &lt;/div&gt;
+    &lt;Layout title={"go back- page not found"}&gt;
+      &lt;div className="pnf"&gt;
+        &lt;h1 className="pnf-title"&gt;404&lt;/h1&gt;
+        &lt;h2 className="pnf-heading"&gt;Oops ! Page Not Found&lt;/h2&gt;
+        &lt;Link to="/" className="pnf-btn"&gt;
+          Go Back
+        &lt;/Link&gt;
       &lt;/div&gt;
     &lt;/Layout&gt;
   );
 };
 &nbsp;
-export default Policy;</pre></td></tr></table></pre>
+export default Pagenotfound;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->

@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for pages/Policy.js</title>
+    <title>Code coverage report for components/Spinner.js</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> Policy.js</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">components</a> Spinner.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -91,11 +91,28 @@
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -110,44 +127,39 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from "react";
-import Layout from "./../components/Layout";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 &nbsp;
-const Policy = () =&gt; {
+const Spinner = ({ path = "login" }) =&gt; {
+  const [count, setCount] = useState(3);
+  const navigate = useNavigate();
+  const location = useLocation();
+&nbsp;
+  useEffect(() =&gt; {
+    const interval = setInterval(() =&gt; {
+      setCount((prevValue) =&gt; --prevValue);
+    }, 1000);
+    count === 0 &amp;&amp; navigate(`/${path}`, {
+        state: location.pathname,
+      });
+    return () =&gt; clearInterval(interval);
+  }, [count, navigate, location, path]); //HOU QINGSHAN added path to dependency array to avoid warning
   return (
-    &lt;Layout title={"Privacy Policy"}&gt;
-      &lt;div className="row contactus "&gt;
-        &lt;div className="col-md-6 "&gt;
-          &lt;img
-            src="/images/contactus.jpeg"
-            alt="contactus"
-            style={{ width: "100%" }}
-          /&gt;
-        &lt;/div&gt;
-        &lt;div className="col-md-4"&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
-          &lt;p&gt;add privacy policy&lt;/p&gt;
+    &lt;&gt;
+      &lt;div
+        className="d-flex flex-column justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      &gt;
+        &lt;h1 className="Text-center"&gt;redirecting to you in {count} second &lt;/h1&gt;
+        &lt;div className="spinner-border" role="status"&gt;
+          &lt;span className="visually-hidden"&gt;Loading...&lt;/span&gt;
         &lt;/div&gt;
       &lt;/div&gt;
-    &lt;/Layout&gt;
+    &lt;/&gt;
   );
 };
 &nbsp;
-export default Policy;</pre></td></tr></table></pre>
+export default Spinner;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
