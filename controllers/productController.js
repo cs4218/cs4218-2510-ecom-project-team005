@@ -97,6 +97,7 @@ export const getProductController = async (req, res) => {
     });
   }
 };
+
 // get single product
 export const getSingleProductController = async (req, res) => {
   try {
@@ -446,7 +447,12 @@ export const braintreeTokenController = async (req, res) => {
   try {
     gateway.clientToken.generate({}, function (err, response) {
       if (err) {
-        throw new Error();
+        console.log(err);
+        return res.status(500).send({
+          success: false,
+          message: "Error generating payment token",
+          error: err instanceof Error ? err.message : '',
+        });
       } else {
         res.send(response);
       }
@@ -465,10 +471,32 @@ export const braintreeTokenController = async (req, res) => {
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
-    let total = 0;
-    cart.map((i) => {
-      total += i.price;
-    });
+    
+    // Input validation
+    if (!nonce) {
+      return res.status(400).send({
+        success: false,
+        message: "Payment nonce is required",
+      });
+    }
+    
+    if (!cart) {
+      return res.status(400).send({
+        success: false,
+        message: "Shopping cart is required",
+      });
+    }
+    
+    if (!cart || !Array.isArray(cart)) {
+      return res.status(400).send({
+        success: false,
+        message: "Shopping cart cannot be empty",
+      });
+    }
+    
+    // Calculate total using reduce (not map)
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,
@@ -477,16 +505,31 @@ export const brainTreePaymentController = async (req, res) => {
           submitForSettlement: true,
         },
       },
-      function (error, result) {
+      async function (error, result) {
         if (result) {
-          const order = new orderModel({
-            products: cart,
-            payment: result,
-            buyer: req.user._id,
-          }).save();
-          res.json({ ok: true });
+          try {
+            // Properly await order save
+            const order = await new orderModel({
+              products: cart,
+              payment: result,
+              buyer: req.user._id,
+            }).save();
+            res.json({ ok: true });
+          } catch (saveError) {
+            console.log(saveError);
+            res.status(500).send({
+              success: false,
+              message: "Error processing payment",
+              error: saveError.message,
+            });
+          }
         } else {
-          throw new Error(error)
+          console.log(error);
+          res.status(500).send({
+            success: false,
+            message: "Error processing payment",
+            error: error instanceof Error ? error.message : 'sale error',
+          });
         }
       }
     );
