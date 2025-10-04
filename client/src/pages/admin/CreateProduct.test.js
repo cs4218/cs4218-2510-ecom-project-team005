@@ -1,14 +1,10 @@
 // HOU QINGSHAN tests for CreateProduct
-// In the test, I don't know how to avoid using multiple assertions within `waitFor`
-// If I separate them, the console will show act warnings
-// so I just left them as is.
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 import CreateProduct from './CreateProduct';
 
 // Mock
@@ -47,7 +43,7 @@ jest.mock('antd', () => {
 
 
 describe('CreateProduct Component Unit Tests', () => {
-  
+
   // Clear all mock history before each test
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,10 +66,14 @@ describe('CreateProduct Component Unit Tests', () => {
     await waitFor(() => {
       // Check if the API was called correctly
       expect(axios.get).toHaveBeenCalledWith('/api/v1/category/get-category');
-      // Check if categories are rendered in our mocked select component
-      expect(screen.getByText('Electronics')).toBeInTheDocument();
-      expect(screen.getByText('Books')).toBeInTheDocument();
     });
+
+    // Check if categories are rendered in our mocked select component
+    await waitFor(() => {
+      expect(screen.getByText('Electronics')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Books')).toBeInTheDocument();
   });
 
   test('handles API error when fetching categories fails', async () => {
@@ -105,7 +105,7 @@ describe('CreateProduct Component Unit Tests', () => {
     render(<CreateProduct />);
     const file = new File(['dummy content'], 'photo.png', { type: 'image/png' });
     const photoInput = screen.getByLabelText('Upload Photo');
-    
+
     fireEvent.change(photoInput, { target: { files: [file] } });
 
     // Check if the label text updated and the image preview is shown
@@ -114,10 +114,9 @@ describe('CreateProduct Component Unit Tests', () => {
     expect(screen.getByAltText('product_photo')).toHaveAttribute('src', 'blob:http://localhost/test-url');
   });
 
-  // --- Tests for Product Creation Logic (handleCreate) ---
 
   describe('handleCreate function', () => {
-    
+
     // Helper function to render the component and populate the form
     const setupAndPopulateForm = async () => {
       axios.get.mockResolvedValue({
@@ -126,18 +125,18 @@ describe('CreateProduct Component Unit Tests', () => {
 
       render(<CreateProduct />);
       await screen.findByText('Category 1'); // Wait for categories to load
-      
+
       const file = new File(['testfile'], 'test.png', { type: 'image/png' });
-      
-      await act(async () => {
-        fireEvent.change(screen.getByPlaceholderText('write a name'), { target: { value: 'Test Product' } });
-        fireEvent.change(screen.getByPlaceholderText('write a description'), { target: { value: 'A test description' } });
-        fireEvent.change(screen.getByPlaceholderText('write a Price'), { target: { value: '99' } });
-        fireEvent.change(screen.getByPlaceholderText('write a quantity'), { target: { value: '10' } });
-        fireEvent.change(screen.getByLabelText('Upload Photo'), { target: { files: [file] } });
-        fireEvent.change(screen.getByTestId('select-select-a-category'), { target: { value: 'cat1' } });
-        fireEvent.change(screen.getByTestId('select-select-shipping'), { target: { value: '1' } });
-      });
+
+
+      fireEvent.change(screen.getByPlaceholderText('write a name'), { target: { value: 'Test Product' } });
+      fireEvent.change(screen.getByPlaceholderText('write a description'), { target: { value: 'A test description' } });
+      fireEvent.change(screen.getByPlaceholderText('write a Price'), { target: { value: '99' } });
+      fireEvent.change(screen.getByPlaceholderText('write a quantity'), { target: { value: '10' } });
+      fireEvent.change(screen.getByLabelText('Upload Photo'), { target: { files: [file] } });
+      fireEvent.change(screen.getByTestId('select-select-a-category'), { target: { value: 'cat1' } });
+      fireEvent.change(screen.getByTestId('select-select-shipping'), { target: { value: '1' } });
+
     };
 
     test('successfully creates a product and navigates on success', async () => {
@@ -152,20 +151,21 @@ describe('CreateProduct Component Unit Tests', () => {
       await waitFor(() => {
         // Verify FormData was constructed correctly
         expect(appendSpy).toHaveBeenCalledWith('name', 'Test Product');
-        expect(appendSpy).toHaveBeenCalledWith('description', 'A test description');
-        expect(appendSpy).toHaveBeenCalledWith('price', '99');
-        expect(appendSpy).toHaveBeenCalledWith('quantity', '10');
-        expect(appendSpy).toHaveBeenCalledWith('category', 'cat1');
-        expect(appendSpy).toHaveBeenCalledWith('shipping', '1');
-        expect(appendSpy).toHaveBeenCalledWith('photo', expect.any(File));
-        
-        // Verify API call
-        expect(axios.post).toHaveBeenCalledWith('/api/v1/product/create-product', expect.any(FormData));
-        
-        // Verify user feedback and navigation
-        expect(toast.success).toHaveBeenCalledWith('Product Created Successfully');
-        expect(mockNavigate).toHaveBeenCalledWith('/dashboard/admin/products');
       });
+
+      expect(appendSpy).toHaveBeenCalledWith('description', 'A test description');
+      expect(appendSpy).toHaveBeenCalledWith('price', '99');
+      expect(appendSpy).toHaveBeenCalledWith('quantity', '10');
+      expect(appendSpy).toHaveBeenCalledWith('category', 'cat1');
+      expect(appendSpy).toHaveBeenCalledWith('shipping', '1');
+      expect(appendSpy).toHaveBeenCalledWith('photo', expect.any(File));
+
+      // Verify API call
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/product/create-product', expect.any(FormData));
+
+      // Verify user feedback and navigation
+      expect(toast.success).toHaveBeenCalledWith('Product Created Successfully');
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard/admin/products');
 
       appendSpy.mockRestore(); // Clean up spy
     });
@@ -180,8 +180,9 @@ describe('CreateProduct Component Unit Tests', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Invalid product data');
-        expect(mockNavigate).not.toHaveBeenCalled();
       });
+
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     test('shows a generic error toast on network or server error', async () => {
@@ -192,8 +193,9 @@ describe('CreateProduct Component Unit Tests', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('something went wrong');
-        expect(mockNavigate).not.toHaveBeenCalled();
       });
+
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 });

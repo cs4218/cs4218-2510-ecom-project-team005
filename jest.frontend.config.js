@@ -33,7 +33,7 @@ export default {
   "<rootDir>/client/src/components/Form/CategoryForm.test.js",
   "<rootDir>/client/src/pages/admin/CreateCategory.test.js",
   "<rootDir>/client/src/pages/admin/CreateProduct.test.js",
-  //"<rootDir>/client/src/pages/admin/UpdateProduct.test.js",
+  "<rootDir>/client/src/pages/admin/UpdateProduct.test.js",
   ],
 
   // jest code coverage
@@ -51,7 +51,7 @@ export default {
   "client/src/components/Form/CategoryForm.js",
   "client/src/pages/admin/CreateCategory.js",
   "client/src/pages/admin/CreateProduct.js",
-  //"client/src/pages/admin/UpdateProduct.js",
+  "client/src/pages/admin/UpdateProduct.js",
   ],
 
 
