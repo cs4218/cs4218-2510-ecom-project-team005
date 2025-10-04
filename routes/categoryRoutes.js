@@ -1,9 +1,9 @@
 import express from "express";
 import { isAdmin, requireSignIn } from "./../middlewares/authMiddleware.js";
 import {
-  categoryControlller,
+  categoryController,
   createCategoryController,
-  deleteCategoryCOntroller,
+  deleteCategoryController,
   singleCategoryController,
   updateCategoryController,
 } from "./../controllers/categoryController.js";
@@ -27,18 +27,18 @@ router.put(
   updateCategoryController
 );
 
-//getALl category
-router.get("/get-category", categoryControlller);
+//getAll category
+router.get("/get-category", categoryController); // HOU QINGSHAN Update spelling mistake for categoryController
 
 //single category
-router.get("/single-category/:slug", singleCategoryController);
+router.get("/single-category/:slug", singleCategoryController); 
 
 //delete category
 router.delete(
   "/delete-category/:id",
   requireSignIn,
   isAdmin,
-  deleteCategoryCOntroller
+  deleteCategoryController
 );
 
 export default router;
