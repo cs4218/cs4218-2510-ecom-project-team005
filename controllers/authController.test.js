@@ -35,6 +35,67 @@ jest.mock("../models/userModel.js", () => {
 jest.mock("../helpers/authHelper.js");
 jest.mock("jsonwebtoken");
 
+// Simple greedy pairwise generator
+function pairwise(parameters) {
+    const keys = Object.keys(parameters);
+    const allPairs = new Set();
+    const testCases = [];
+
+    const pairKey = (k1, v1, k2, v2) => `${k1}:${v1}|${k2}:${v2}`;
+
+    while (true) {
+        let bestCase = null;
+        let bestNewPairs = -1;
+
+        const candidates = cartesian(parameters);
+
+        for (const candidate of candidates) {
+            let newPairs = 0;
+            for (let i = 0; i < keys.length; i++) {
+                for (let j = i + 1; j < keys.length; j++) {
+                    const pk = pairKey(keys[i], candidate[keys[i]], keys[j], candidate[keys[j]]);
+                    if (!allPairs.has(pk)) newPairs++;
+                }
+            }
+            if (newPairs > bestNewPairs) {
+                bestNewPairs = newPairs;
+                bestCase = candidate;
+            }
+        }
+
+        if (bestNewPairs === 0) break; // all pairs covered
+        testCases.push(bestCase);
+
+        for (let i = 0; i < keys.length; i++) {
+            for (let j = i + 1; j < keys.length; j++) {
+                const pk = pairKey(keys[i], bestCase[keys[i]], keys[j], bestCase[keys[j]]);
+                allPairs.add(pk);
+            }
+        }
+    }
+
+    return testCases;
+}
+
+// Helper: Cartesian product
+function cartesian(params) {
+    const keys = Object.keys(params);
+    let result = [{}];
+    for (const key of keys) {
+        const newRes = [];
+        for (const r of result) {
+            for (const val of params[key]) {
+                newRes.push({ ...r, [key]: val });
+            }
+        }
+        result = newRes;
+    }
+    return result;
+}
+
+
+
+
 describe('Auth controllers tests', () => {
     describe('registerController_Tests', () => {
         let req;
@@ -546,4 +607,46 @@ describe('Auth controllers tests', () => {
     });
 
 
+});
+
+describe("Pairwise Combinatorial Tests - registerController", () => {
+    let req, res;
+
+    beforeEach(() => {
+        res = {
+            status: jest.fn(() => res), // chainable
+            send: jest.fn(),
+            json: jest.fn(),
+        };
+        jest.clearAllMocks();
+        userModel.findOne = jest.fn();
+        hashPassword.mockResolvedValue("hashed");
+    });
+
+    // 6 fields, each Valid (V) or Invalid (I)
+    const parameters = {
+        name: ["Alice", ""],
+        email: ["alice@example.com", ""],
+        password: ["password123", ""],
+        phone: ["1234567890", ""],
+        address: ["123 Street", ""],
+        answer: ["Blue", ""],
+    };
+
+    const cases = pairwise(parameters);
+
+    test.each(cases)("Pairwise case %# -> %o", async (body) => {
+        req = { body };
+
+        // LOG the input so you can verify combinations
+        console.log("Testing combination:", body);
+
+        // assume not duplicate for simplicity
+        userModel.findOne.mockResolvedValue(null);
+
+        await registerController(req, res);
+
+        // ✅ robust check: either send or status must have been called
+        expect(res.send).toHaveBeenCalled();
+    });
 });

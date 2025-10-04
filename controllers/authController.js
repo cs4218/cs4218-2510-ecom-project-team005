@@ -83,7 +83,7 @@ export const loginController = async (req, res) => {
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
-      return res.status(400).send({ // Should also not be 200 OK ==> fixed to 401
+      return res.status(400).send({ // Should also not be 200 OK ==> fixed to 400
         success: false,
         message: "Invalid email or password", // invalid password opens doors for side channel attack same as for email ==> fixed it to a genereic response
       });
@@ -239,6 +239,7 @@ export const getOrdersController = async (req, res) => {
     });
   }
 };
+
 //orders
 export const getAllOrdersController = async (req, res) => {
   try {

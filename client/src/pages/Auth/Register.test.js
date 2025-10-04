@@ -64,12 +64,12 @@ describe('Register Component', () => {
     fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
     fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
     fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
-    fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+    fireEvent.change(getByPlaceholderText('What is Your favorite sport'), { target: { value: 'Football' } });
 
     fireEvent.click(getByText('REGISTER'));
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
-    expect(toast.success).toHaveBeenCalledWith('Register Successfully, please login');
+    expect(toast.success).toHaveBeenCalledWith('Registered Successfully, please login');
   });
 
   it('should display error message on failed registration', async () => {
@@ -89,7 +89,7 @@ describe('Register Component', () => {
     fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
     fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
     fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
-    fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+    fireEvent.change(getByPlaceholderText('What is Your favorite sport'), { target: { value: 'Football' } });
 
     fireEvent.click(getByText('REGISTER'));
 
@@ -112,7 +112,7 @@ describe('Register Component', () => {
         fireEvent.change(getByPlaceholderText('Enter Your Phone'), { target: { value: '1234567890' } });
         fireEvent.change(getByPlaceholderText('Enter Your Address'), { target: { value: '123 Street' } });
         fireEvent.change(getByPlaceholderText('Enter Your DOB'), { target: { value: '2000-01-01' } });
-        fireEvent.change(getByPlaceholderText('What is Your Favorite sports'), { target: { value: 'Football' } });
+        fireEvent.change(getByPlaceholderText('What is Your favorite sport'), { target: { value: 'Football' } });
 
         expect(getByPlaceholderText('Enter Your Name').value).toBe('John Doe');
         expect(getByPlaceholderText('Enter Your Email').value).toBe('test@example.com');
@@ -120,7 +120,7 @@ describe('Register Component', () => {
         expect(getByPlaceholderText('Enter Your Phone').value).toBe('1234567890');
         expect(getByPlaceholderText('Enter Your Address').value).toBe('123 Street');
         expect(getByPlaceholderText('Enter Your DOB').value).toBe('2000-01-01');
-        expect(getByPlaceholderText('What is Your Favorite sports').value).toBe('Football');
+        expect(getByPlaceholderText('What is Your favorite sport').value).toBe('Football');
     });
 
 
@@ -141,7 +141,7 @@ describe('Register Component', () => {
         expect(getByPlaceholderText('Enter Your Phone').value).toBe('');
         expect(getByPlaceholderText('Enter Your Address').value).toBe('');
         expect(getByPlaceholderText('Enter Your DOB').value).toBe('');
-        expect(getByPlaceholderText('What is Your Favorite sports').value).toBe('');
+        expect(getByPlaceholderText('What is Your favorite sport').value).toBe('');
     });
 
 
@@ -161,7 +161,7 @@ describe('Register Component', () => {
         expect(getByPlaceholderText('Enter Your Phone')).toBeInTheDocument();
         expect(getByPlaceholderText('Enter Your Address')).toBeInTheDocument();
         expect(getByPlaceholderText('Enter Your DOB')).toBeInTheDocument();
-        expect(getByPlaceholderText('What is Your Favorite sports')).toBeInTheDocument();
+        expect(getByPlaceholderText('What is Your favorite sport')).toBeInTheDocument();
     });
 
     //new:
@@ -185,7 +185,7 @@ describe('Register Component', () => {
         fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: '1234567890' } });
         fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: '123 Street' } });
         fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: '2000-01-01' } });
-        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: 'Football' } });
+        fireEvent.change(getByPlaceholderText(/What is Your favorite sport/i), { target: { value: 'Football' } });
 
         fireEvent.click(getByRole('button', { name: /register/i }));
 
@@ -222,7 +222,7 @@ describe('Register Component', () => {
         fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: payload.phone } });
         fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: payload.address } });
         fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: payload.DOB } });
-        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: payload.answer } });
+        fireEvent.change(getByPlaceholderText(/What is Your favorite sport/i), { target: { value: payload.answer } });
 
         fireEvent.click(getByRole('button', { name: /register/i }));
 
@@ -252,7 +252,7 @@ describe('Register Component', () => {
         fireEvent.change(getByPlaceholderText(/Enter Your Phone/i), { target: { value: '1234567890' } });
         fireEvent.change(getByPlaceholderText(/Enter Your Address/i), { target: { value: '123 Street' } });
         fireEvent.change(getByPlaceholderText(/Enter Your DOB/i), { target: { value: '2000-01-01' } });
-        fireEvent.change(getByPlaceholderText(/What is Your Favorite sports/i), { target: { value: 'Football' } });
+        fireEvent.change(getByPlaceholderText(/What is Your favorite sport/i), { target: { value: 'Football' } });
 
         fireEvent.click(getByRole('button', { name: /register/i }));
 

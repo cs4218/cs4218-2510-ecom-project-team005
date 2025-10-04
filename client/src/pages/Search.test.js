@@ -127,5 +127,16 @@ describe("Search Page", () => {
         expect(getByText("123456789012345678901234567890...")).toBeInTheDocument();
     });
 
+    it("should display the correct heading text", () => {
+        const { getByText } = render(
+            <SearchProvider>
+                <Search />
+            </SearchProvider>
+        );
+
+        // This assertion will fail if the heading has a typo
+        expect(getByText("Search Results")).toBeInTheDocument();
+    });
+
 
 });

@@ -28,7 +28,7 @@ const Register = () => {
         answer,
       });
       if (res && res.data.success) {
-        toast.success("Register Successfully, please login");
+        toast.success("Registered Successfully, please login"); // changed Register to Registered. grammatically wrong
         navigate("/login");
       } else {
         toast.error(res.data.message);
@@ -118,7 +118,7 @@ const Register = () => {
               onChange={(e) => setAnswer(e.target.value)}
               className="form-control"
               id="exampleInputanswer1"
-              placeholder="What is Your Favorite sports"
+              placeholder="What is Your favorite sport" // also not 100% correct. Favorite has to be lower case and sport should not be plural.
               required
             />
           </div>
