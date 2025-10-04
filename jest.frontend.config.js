@@ -30,7 +30,8 @@ export default {
   "<rootDir>/client/src/components/Spinner.test.js",
   "<rootDir>/client/src/pages/About.test.js",
   "<rootDir>/client/src/pages/Pagenotfound.test.js",
-  "<rootDir>/client/src/components/Form/CategoryForm.test.js"
+  "<rootDir>/client/src/components/Form/CategoryForm.test.js",
+  "<rootDir>/client/src/pages/admin/CreateCategory.test.js"
   ],
 
   // jest code coverage
@@ -45,7 +46,8 @@ export default {
   "client/src/components/Spinner.js",
   "client/src/pages/About.js",
   "client/src/pages/Pagenotfound.js",
-  "client/src/components/Form/CategoryForm.js"
+  "client/src/components/Form/CategoryForm.js",
+  "client/src/pages/admin/CreateCategory.js"
   ],
 
 
