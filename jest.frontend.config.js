@@ -20,29 +20,11 @@ export default {
     transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
     // only run these tests
-    testMatch: [
-        "<rootDir>/client/src/pages/Auth/*.test.js", // Register & Login
-        "<rootDir>/client/src/pages/admin/Users.test.js", // Users
-        "<rootDir>/client/src/context/search.test.js", // SearchContext
-        "<rootDir>/client/src/components/Form/SearchInput.test.js", // SearchInput
-        "<rootDir>/client/src/pages/Search.test.js" // Search Page
-    ], // changed so all frontend files get tested
+    testMatch: ["<rootDir>/client/src/**/*.test.js"],
 
     // jest code coverage
     collectCoverage: true,
-    collectCoverageFrom: [
-        "client/src/pages/Auth/**",  // Register & Login
-        "client/src/pages/admin/Users.js", // Users page only
-        "client/src/context/search.js",
-        "client/src/components/Form/SearchInput.js",
-        "client/src/pages/Search.js"
-    ],
-
-    // exclude generated/site files that caused parser errors previously
-    coveragePathIgnorePatterns: [
-        "client/src/_site/",
-    ],
-
+    collectCoverageFrom: ["client/src/**/*.{js,jsx}", "!client/src/**/*.test.js", "!client/src/index.js", "!client/src/_site/**"],
     coverageThreshold: {
         global: {
             lines: 100,
