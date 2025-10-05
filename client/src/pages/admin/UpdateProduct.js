@@ -21,43 +21,85 @@ const UpdateProduct = () => {
   const [id, setId] = useState("");
 
   //get single product
-  const getSingleProduct = async () => {
-    try {
-      const { data } = await axios.get(
-        `/api/v1/product/get-product/${params.slug}`
-      );
-      setName(data.product.name);
-      setId(data.product._id);
-      setDescription(data.product.description);
-      setPrice(data.product.price);
-      setPrice(data.product.price);
-      setQuantity(data.product.quantity);
-      setShipping(data.product.shipping);
-      setCategory(data.product.category._id);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getSingleProduct();
-    //eslint-disable-next-line
-  }, []);
+  // const getSingleProduct = async () => {
+  //   try {
+  //     const { data } = await axios.get(
+  //       `/api/v1/product/get-product/${params.slug}`
+  //     );
+  //     setName(data.product.name);
+  //     setId(data.product._id);
+  //     setDescription(data.product.description);
+  //     setPrice(data.product.price);
+  //     setPrice(data.product.price);
+  //     setQuantity(data.product.quantity);
+  //     setShipping(data.product.shipping);
+  //     setCategory(data.product.category._id);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+
+  // useEffect(() => {
+  //   getSingleProduct();
+  //   //eslint-disable-next-line
+  // }, []);
+
   //get all category
-  const getAllCategory = async () => {
-    try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      if (data?.success) {
-        setCategories(data?.category);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
-    }
-  };
+  // const getAllCategory = async () => {
+  //   try {
+  //     const { data } = await axios.get("/api/v1/category/get-category");
+  //     if (data?.success) {
+  //       setCategories(data?.category);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Something wwent wrong in getting catgeory");
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getAllCategory();
+  // }, []);
+
+
+  // Combined useEffect to fetch both categories and product data
 
   useEffect(() => {
-    getAllCategory();
-  }, []);
+    // Function to fetch all data needed for the component
+    const fetchData = async () => {
+      try {
+        // Fetch categories and product data in parallel for efficiency
+        const categoryPromise = axios.get("/api/v1/category/get-category");
+        const productPromise = axios.get(`/api/v1/product/get-product/${params.slug}`);
+
+        // Wait for both promises to resolve
+        const [categoryRes, productRes] = await Promise.all([categoryPromise, productPromise]);
+
+        // Process category data
+        if (categoryRes.data?.success) {
+          setCategories(categoryRes.data?.category);
+        }
+
+        // Process product data
+        const { product } = productRes.data;
+        setName(product.name);
+        setId(product._id);
+        setDescription(product.description);
+        setPrice(product.price);
+        setQuantity(product.quantity);
+        setShipping(product.shipping);
+        setCategory(product.category._id);
+
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong while fetching data"); // fixed typo here
+      }
+    };
+
+    fetchData();
+    //eslint-disable-next-line
+  }, []); // The dependency array is empty, so this runs once on mount
 
   //create product function
   const handleUpdate = async (e) => {
@@ -70,15 +112,16 @@ const UpdateProduct = () => {
       productData.append("quantity", quantity);
       photo && productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.put(
+      productData.append("shipping", shipping); // HOU QINGSHAN added shipping field
+      const { data } = await axios.put( // added await
         `/api/v1/product/update-product/${id}`,
         productData
       );
-      if (data?.success) {
-        toast.error(data?.message);
-      } else {
+      if (data?.success) { // HOU QINGSHAN the logic here was reversed
         toast.success("Product Updated Successfully");
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -94,7 +137,7 @@ const UpdateProduct = () => {
       const { data } = await axios.delete(
         `/api/v1/product/delete-product/${id}`
       );
-      toast.success("Product DEleted Succfully");
+      toast.success("Product Deleted Successfully"); // HOU QINGSHAN fixed typo in "Deleted"
       navigate("/dashboard/admin/products");
     } catch (error) {
       console.log(error);
