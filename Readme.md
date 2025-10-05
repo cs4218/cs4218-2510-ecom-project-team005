@@ -5,11 +5,11 @@
 * Tag: `ms1`
 
 ## Member scope
-We splitted workout according to the recommended scope for a five persion team. 
+We splitted workout according to the recommended scope for a five persion team (4 features each). 
 | Name | List of all the files that were tested by this person |
 | :--- | :--- |
 | **Jakob** | Admin Dashboard, Protected Routes, Product, Contact|
 | **Jimmy** | Admin Actions, Admin View Orders, Policy, General|
 | **Ridwan** | Order, Profile, Home, Cart|
 | **Arda** | Category, Payment, Admin View Product, General|
-| **Adat** | Registration, Login, Admin View Users, Seach|
+| **Adnan** | Registration, Login, Admin View Users, Seach|
