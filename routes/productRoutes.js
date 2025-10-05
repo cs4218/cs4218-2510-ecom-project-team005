@@ -7,6 +7,7 @@ import {
   getProductController,
   getSingleProductController,
   productCategoryController,
+  productCategoryCountController,
   productCountController,
   productFiltersController,
   productListController,
@@ -55,6 +56,9 @@ router.post("/product-filters", productFiltersController);
 //product count
 router.get("/product-count", productCountController);
 
+//category product count
+router.get("/product-category-count/:slug", productCategoryCountController);
+
 //product per page
 router.get("/product-list/:page", productListController);
 
@@ -65,7 +69,7 @@ router.get("/search/:keyword", searchProductController);
 router.get("/related-product/:pid/:cid", realtedProductController);
 
 //category wise product
-router.get("/product-category/:slug", productCategoryController);
+router.get("/product-category/:slug/:page", productCategoryController);
 
 //payments routes
 //token

@@ -12,7 +12,8 @@ export const createCategoryController = async (req, res) => {
     if (existingCategory) {
       return res.status(200).send({
         success: true,
-        message: "Category Already Exisits",
+        // typo Exisits
+        message: "Category Already Exists",
       });
     }
     const category = await new categoryModel({
@@ -28,7 +29,8 @@ export const createCategoryController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      error, // HOU QINGSHAN fixed typo in "error"
+      // typo errro
+      error,
       message: "Error in Category",
     });
   }
@@ -48,7 +50,8 @@ export const updateCategoryController = async (req, res) => {
     );
     res.status(200).send({
       success: true,
-      messsage: "Category Updated Successfully",
+      // typo messsage
+      message: "Category Updated Successfully",
       category,
     });
   } catch (error) {
@@ -61,10 +64,7 @@ export const updateCategoryController = async (req, res) => {
   }
 };
 
-
-
-// get all categories
-// HOU QINGSHAN updated spelling mistake in "categoryController"
+// get all cat, categoryControlller
 export const categoryController = async (req, res) => {
   try {
     const category = await categoryModel.find({});
@@ -91,7 +91,8 @@ export const singleCategoryController = async (req, res) => {
     const category = await categoryModel.findOne({ slug: req.params.slug });
     res.status(200).send({
       success: true,
-      message: "Get SIngle Category SUccessfully",
+      // typo SIngle Category SUccessfully
+      message: "Get Single Category Successfully",
       category,
     });
   } catch (error) {
@@ -104,15 +105,15 @@ export const singleCategoryController = async (req, res) => {
   }
 };
 
-//delete category
-// HOU QINGSHAN fixed typo in "deleteCategoryController"
+//delete category, typo: COntroller
 export const deleteCategoryController = async (req, res) => {
   try {
     const { id } = req.params;
     await categoryModel.findByIdAndDelete(id);
     res.status(200).send({
       success: true,
-      message: "Categry Deleted Successfully",
+      // typo Categry Deleted Successfully
+      message: "Category Deleted Successfully",
     });
   } catch (error) {
     console.log(error);

@@ -20,41 +20,11 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
   // only run these tests
-  testMatch: [
-  //"<rootDir>/client/src/pages/Auth/*.test.js",
-  "<rootDir>/client/src/pages/admin/AdminOrders.test.js",
-  "<rootDir>/client/src/pages/Policy.test.js",
-  "<rootDir>/client/src/components/Footer.test.js",
-  "<rootDir>/client/src/components/Header.test.js",
-  "<rootDir>/client/src/components/Layout.test.js",
-  "<rootDir>/client/src/components/Spinner.test.js",
-  "<rootDir>/client/src/pages/About.test.js",
-  "<rootDir>/client/src/pages/Pagenotfound.test.js",
-  "<rootDir>/client/src/components/Form/CategoryForm.test.js",
-  "<rootDir>/client/src/pages/admin/CreateCategory.test.js",
-  "<rootDir>/client/src/pages/admin/CreateProduct.test.js",
-  "<rootDir>/client/src/pages/admin/UpdateProduct.test.js",
-  ],
+  testMatch: ["<rootDir>/client/src/**/*.test.js"],
 
   // jest code coverage
   collectCoverage: true,
-  collectCoverageFrom: [
-  //"client/src/pages/Auth/**",
-  "client/src/pages/admin/AdminOrders.js",
-  "client/src/pages/Policy.js",
-  "client/src/components/Footer.js",
-  "client/src/components/Header.js",
-  "client/src/components/Layout.js",
-  "client/src/components/Spinner.js",
-  "client/src/pages/About.js",
-  "client/src/pages/Pagenotfound.js",
-  "client/src/components/Form/CategoryForm.js",
-  "client/src/pages/admin/CreateCategory.js",
-  "client/src/pages/admin/CreateProduct.js",
-  "client/src/pages/admin/UpdateProduct.js",
-  ],
-
-
+  collectCoverageFrom: ["client/src/**/*.{js,jsx}", "!client/src/**/*.test.js", "!client/src/index.js", "!client/src/_site/**"],
   coverageThreshold: {
     global: {
       lines: 100,
