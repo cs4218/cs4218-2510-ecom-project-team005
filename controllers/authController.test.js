@@ -241,7 +241,7 @@ describe('Auth controllers tests', () => {
             expect(res.send).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
-                    message: "User Register Successfully",
+                    message: "User Registered Successfully",
                     user: expect.objectContaining({
                         name: "Alice",
                         email: "alice@example.com",
