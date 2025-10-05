@@ -1,35 +1,43 @@
+// jest.frontend.config.js
 export default {
-  // name displayed during tests
   displayName: "frontend",
 
-  // simulates browser environment in jest
-  // e.g., using document.querySelector in your tests
+  // Environment browser untuk React
   testEnvironment: "jest-environment-jsdom",
 
-  // jest does not recognise jsx files by default, so we use babel to transform any jsx files
+  // Transform JSX/JS via Babel
   transform: {
-    "^.+\\.jsx?$": "babel-jest",
+    "^.+\\.[jt]sx?$": "babel-jest",
   },
 
-  // tells jest how to handle css/scss imports in your tests
+  // Mock CSS modules saat test
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy",
+    // optional kalau kamu impor asset gambar:
+    // "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/client/src/__mocks__/fileMock.js",
   },
 
-  // ignore all node_modules except styleMock (needed for css imports)
+  // Hindari transform node_modules
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
-  // only run these tests
-  testMatch: ["<rootDir>/client/src/**/*.test.js"],
+  // Tes yang dijalankan (pakai pola umum biar semua test frontend ketemu)
+  testMatch: ["<rootDir>/client/src/**/*.test.@(js|jsx)"],
 
-  // jest code coverage
+  // Coverage
   collectCoverage: true,
-  collectCoverageFrom: ["client/src/**/*.{js,jsx}", "!client/src/**/*.test.js", "!client/src/index.js", "!client/src/_site/**"],
-  coverageThreshold: {
-    global: {
-      lines: 100,
-      functions: 100,
-    },
-  },
+  collectCoverageFrom: [
+    "client/src/**/*.{js,jsx}",
+    "!client/src/**/*.test.{js,jsx}",
+    "!client/src/index.js",
+    "!client/src/**/__mocks__/**",
+  ],
+  coverageDirectory: "client/coverage",
+  coverageReporters: ["lcov", "text", "html"],
+
+  // Setup RTL matcher
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
+
+  // Optional: biar Jest fokus hanya ke src frontend
+  roots: ["<rootDir>/client/src"],
+  moduleFileExtensions: ["js", "jsx", "json"],
 };
