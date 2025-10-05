@@ -1,31 +1,31 @@
-// jest.backend.config.js (ESM)
 export default {
+  // display name
   displayName: "backend",
 
-  // Environment backend
+
+
+  // when testing backend
   testEnvironment: "node",
 
-  // File test yang dijalankan
-  testMatch: [
-    "<rootDir>/controllers/*.unit.test.js",
-    "<rootDir>/tests/*.test.js"
-  ],
+ transform: {},                    // <- disable Babel for ESM files
+    moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
+    },
 
-  // Abaikan folder ini
-  testPathIgnorePatterns: ["<rootDir>/client/", "<rootDir>/node_modules/"],
-
-  // Coverage
+  // which test to run
+    testMatch: [
+        "<rootDir>/controllers/**/*.test.js",
+        "<rootDir>/helpers/**/*.test.js",
+        "<rootDir>/middlewares/**/*.test.js",
+        "<rootDir>/models/**/*.test.js",
+    ],
+  // jest code coverage
   collectCoverage: true,
-  collectCoverageFrom: [
-    "controllers/**/*.js",
-    "routes/**/*.js",
-    "helpers/**/*.js",
-    "models/**/*.js",
-    "server.js",
-    "!**/*.test.js",
-    "!**/*.unit.test.js",
-    "!**/node_modules/**"
-  ],
-  coverageDirectory: "server/coverage",
-  coverageReporters: ["lcov", "text", "html"]
+    collectCoverageFrom: ["controllers/**", "helpers/**", "middlewares/**", "models/**"],
+    coverageThreshold: {
+    global: {
+      lines: 100,
+      functions: 100,
+    },
+  },
 };
