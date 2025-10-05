@@ -1,19 +1,11 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || "test_jwt_secret";
 
+import { jest } from "@jest/globals";
 
-import {
-    registerController,
-    loginController,
-    forgotPasswordController,
-    testController,
-} from "./authController";
 
-import userModel from "../models/userModel.js";
-import { hashPassword, comparePassword } from "../helpers/authHelper.js";
-import JWT from "jsonwebtoken";
 
 // Mock modules to avoid DB/JWT operations
-jest.mock("../models/userModel.js", () => {
+await jest.unstable_mockModule("../models/userModel.js", () => {
     const mUserModel = jest.fn().mockImplementation(() => ({
         save: jest.fn().mockResolvedValue({
             _id: "fakeid123",
@@ -25,15 +17,38 @@ jest.mock("../models/userModel.js", () => {
         }),
     }));
 
-    // static methods
     mUserModel.findOne = jest.fn();
     mUserModel.findById = jest.fn();
     mUserModel.findByIdAndUpdate = jest.fn();
 
-    return mUserModel;
+    return { __esModule: true, default: mUserModel };
 });
-jest.mock("../helpers/authHelper.js");
-jest.mock("jsonwebtoken");
+
+await jest.unstable_mockModule("../helpers/authHelper.js", () => {
+    return {
+        __esModule: true,
+        hashPassword: jest.fn(),
+        comparePassword: jest.fn(),
+    };
+});
+
+// mock jsonwebtoken (default export)
+await jest.unstable_mockModule("jsonwebtoken", () => {
+    return { __esModule: true, default: { sign: jest.fn() } };
+});
+
+
+const authControllerModule = await import("./authController.js");
+const { registerController, loginController, forgotPasswordController, testController } = authControllerModule;
+
+const userModelModule = await import("../models/userModel.js");
+const userModel = userModelModule.default;
+
+const helperModule = await import("../helpers/authHelper.js");
+const { hashPassword, comparePassword } = helperModule;
+
+const jwtModule = await import("jsonwebtoken");
+const JWT = jwtModule.default;
 
 // Simple greedy pairwise generator
 function pairwise(parameters) {
