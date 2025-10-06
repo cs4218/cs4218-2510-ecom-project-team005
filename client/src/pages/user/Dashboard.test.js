@@ -92,7 +92,7 @@ describe('User Dashboard Test Suite', () => {
   });
 
   // XSS Security Vulnerability
-  test('should handle malicious user data safely - EXPOSES SECURITY BUG', () => {
+  test('should handle malicious user data safely', () => {
     // Arrange - Malicious user data with script injection attempts
     const maliciousUser = {
       name: '<script>alert("XSS Attack!")</script>Hacker',
@@ -108,14 +108,14 @@ describe('User Dashboard Test Suite', () => {
       </MemoryRouter>
     );
     
-    // Assert - Component should sanitize HTML and now it does (bug fixed!)
+    // Assert - Component should sanitize HTML
     const container = screen.getByTestId('layout');
     expect(container.innerHTML).not.toContain('<script>'); // Script tags should be removed
     expect(container.innerHTML).toContain('alert("XSS Attack!")Hacker'); // Clean text should remain
   });
 
   // Undefined Display Bug  
-  test('should handle undefined user fields gracefully - EXPOSES DISPLAY BUG', () => {
+  test('should handle undefined user fields gracefully', () => {
     // Arrange - User with missing fields (incomplete profile)
     const incompleteUser = {
       name: 'John Doe'

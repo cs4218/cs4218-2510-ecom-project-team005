@@ -192,7 +192,7 @@ describe('User Model Test Suite', () => {
     });
 
     // Weak Password Acceptance
-    test('should reject weak passwords - EXPOSES SECURITY BUG', () => {
+    test('should reject weak passwords', () => {
       // Arrange - Set up user data with extremely weak password
       const userDataWeakPassword = {
         name: 'John Doe',
@@ -215,7 +215,7 @@ describe('User Model Test Suite', () => {
     });
 
     // Invalid Phone Number Acceptance
-    test('should reject invalid phone numbers - EXPOSES VALIDATION BUG', () => {
+    test('should reject invalid phone numbers', () => {
       // Arrange - Set up user data with invalid phone number
       const userDataInvalidPhone = {
         name: 'John Doe',
