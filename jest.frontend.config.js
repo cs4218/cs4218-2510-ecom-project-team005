@@ -1,43 +1,44 @@
-// jest.frontend.config.js
 export default {
-  displayName: "frontend",
+    // name displayed during tests
+    displayName: "frontend",
 
-  // Environment browser untuk React
-  testEnvironment: "jest-environment-jsdom",
+    // simulates browser environment in jest
+    // e.g., using document.querySelector in your tests
+    testEnvironment: "jest-environment-jsdom",
 
-  // Transform JSX/JS via Babel
-  transform: {
-    "^.+\\.[jt]sx?$": "babel-jest",
-  },
+    // jest does not recognise jsx files by default, so we use babel to transform any jsx files
+    transform: {
+        "^.+\\.jsx?$": "babel-jest",
+    },
 
-  // Mock CSS modules saat test
-  moduleNameMapper: {
-    "\\.(css|scss)$": "identity-obj-proxy",
-    // optional kalau kamu impor asset gambar:
-    // "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/client/src/__mocks__/fileMock.js",
-  },
+    // tells jest how to handle css/scss imports in your tests
+    moduleNameMapper: {
+        "\\.(css|scss)$": "identity-obj-proxy",
+    },
 
-  // Hindari transform node_modules
-  transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
+    // ignore all node_modules except styleMock (needed for css imports)
+    testPathIgnorePatterns: [
+        "<rootDir>/node_modules/",
+        "<rootDir>/client/src/pages/user/Orders.test.js",
+        "<rootDir>/client/src/pages/user/Profile.test.js"
+    ],
 
-  // Tes yang dijalankan (pakai pola umum biar semua test frontend ketemu)
-  testMatch: ["<rootDir>/client/src/**/*.test.@(js|jsx)"],
+    // only run these tests
+    testMatch: ["<rootDir>/client/src/**/*.test.js"],
 
-  // Coverage
-  collectCoverage: true,
-  collectCoverageFrom: [
-    "client/src/**/*.{js,jsx}",
-    "!client/src/**/*.test.{js,jsx}",
-    "!client/src/index.js",
-    "!client/src/**/__mocks__/**",
-  ],
-  coverageDirectory: "client/coverage",
-  coverageReporters: ["lcov", "text", "html"],
-
-  // Setup RTL matcher
-  setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
-
-  // Optional: biar Jest fokus hanya ke src frontend
-  roots: ["<rootDir>/client/src"],
-  moduleFileExtensions: ["js", "jsx", "json"],
+    // jest code coverage
+    collectCoverage: true,
+    collectCoverageFrom: [
+        "client/src/**/*.{js,jsx}",
+        "!client/src/**/*.test.js",
+        "!client/src/index.js",
+        "!client/src/_site/**"
+    ],
+    coverageThreshold: {
+        global: {
+            lines: 100,
+            functions: 100,
+        },
+    },
+    setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
 };

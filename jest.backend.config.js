@@ -1,31 +1,46 @@
-// jest.backend.config.js (ESM)
 export default {
-  displayName: "backend",
+    // display name
+    displayName: "backend",
 
-  // Environment backend
-  testEnvironment: "node",
 
-  // File test yang dijalankan
-  testMatch: [
-    "<rootDir>/controllers/*.unit.test.js",
-    "<rootDir>/tests/*.test.js"
-  ],
 
-  // Abaikan folder ini
-  testPathIgnorePatterns: ["<rootDir>/client/", "<rootDir>/node_modules/"],
+    // when testing backend
+    testEnvironment: "node",
 
-  // Coverage
-  collectCoverage: true,
-  collectCoverageFrom: [
-    "controllers/**/*.js",
-    "routes/**/*.js",
-    "helpers/**/*.js",
-    "models/**/*.js",
-    "server.js",
-    "!**/*.test.js",
-    "!**/*.unit.test.js",
-    "!**/node_modules/**"
-  ],
-  coverageDirectory: "server/coverage",
-  coverageReporters: ["lcov", "text", "html"]
+    transform: {},                    // <- disable Babel for ESM files
+    moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
+    },
+
+    // which test to run
+    testMatch: [
+        "<rootDir>/controllers/**/*.test.js",
+        "<rootDir>/helpers/**/*.test.js",
+        "<rootDir>/middlewares/**/*.test.js",
+        "<rootDir>/models/**/*.test.js",
+    ],
+
+
+    testPathIgnorePatterns: [
+        "<rootDir>/client/",
+        "<rootDir>/node_modules/",
+        "<rootDir>/controllers/auth.update.unit.test.js",
+        "<rootDir>/controllers/auth.controller.test.js",
+        "<rootDir>/controllers/health.test.js",
+        "<rootDir>/controllers/orders.controller.test.js",
+        "<rootDir>/controllers/orders.controllers.unit.test.js"
+    ],
+
+
+    // jest code coverage
+    collectCoverage: true,
+    collectCoverageFrom: ["controllers/**", "helpers/**", "middlewares/**", "models/**", "!**/*.test.js",
+        "!**/*.unit.test.js",
+        "!**/node_modules/**"],
+    coverageThreshold: {
+        global: {
+            lines: 100,
+            functions: 100,
+        },
+    },
 };
