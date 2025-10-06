@@ -98,6 +98,23 @@ describe("ProductDetails", () => {
             await waitFor(() => expect(logSpy).toHaveBeenCalledWith(error));
             logSpy.mockRestore();
         });
+
+        test("logs errors when similar products fetch fails", async () => {
+            // Arrange
+            const error = new Error("Similar fetch error");
+            axios.get.mockResolvedValueOnce({ data: productResponse });
+            axios.get.mockRejectedValueOnce(error);
+            const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+
+            // Act
+            render(<ProductDetails />);
+
+            // Assert
+            await screen.findByText((content) => content.includes("Test Product"));
+            await waitFor(() => expect(logSpy).toHaveBeenCalledWith(error));
+            expect(screen.getByText("No Similar Products found")).toBeInTheDocument();
+            logSpy.mockRestore();
+        });
     });
 
     describe("cart interactions", () => {

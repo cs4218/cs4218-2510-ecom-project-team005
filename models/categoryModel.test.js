@@ -66,7 +66,7 @@ describe('Category Model Test Suite', () => {
         expect(Category.schema.paths.createdAt).toBeDefined();
         expect(Category.schema.paths.updatedAt).toBeDefined();
       } else {
-        // EXPOSES BUG: Timestamps not configured
+        // Timestamps not configured
         expect(Category.schema.options.timestamps).toBeUndefined();
       }
     });
@@ -102,7 +102,7 @@ describe('Category Model Test Suite', () => {
       if (err && err.errors && err.errors.name) {
         expect(err.errors).toHaveProperty('name');
       } else {
-        // EXPOSES BUG: Name field is not required (should be required)
+        // Name field is not required (should be required)
         expect(err).toBeUndefined();
       }
     });

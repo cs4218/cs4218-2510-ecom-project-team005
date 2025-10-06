@@ -300,7 +300,7 @@ describe('Product Controller', () => {
     })
 
     describe('getSingleProduct', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         let chainableQuery;
 
         beforeEach(() => {
@@ -356,7 +356,7 @@ describe('Product Controller', () => {
     });
 
     describe('productPhoto', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         let chainableQuery;
 
         beforeEach(() => {
@@ -424,7 +424,7 @@ describe('Product Controller', () => {
     });
 
     describe('deleteProduct', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         let chainableQuery;
 
         beforeEach(() => {
@@ -633,7 +633,7 @@ describe('Product Controller', () => {
     });
 
     describe('productFilters', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should build filter args for checked categories and radio price', async () => {
             //arrange
             const req = { body: { checked: ['cat1'], radio: [10, 50] } };
@@ -685,7 +685,7 @@ describe('Product Controller', () => {
     });
 
     describe('productCount', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should return product count', async () => {
             //arrange
             const req = {};
@@ -721,7 +721,7 @@ describe('Product Controller', () => {
     });
 
     describe('productList', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should list products for given page', async () => {
             //arrange
             const req = { params: { page: 2 } };
@@ -790,7 +790,7 @@ describe('Product Controller', () => {
     });
 
     describe('searchProduct', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should return search results matching keyword', async () => {
             //arrange
             const req = { params: { keyword: 'test' } };
@@ -835,7 +835,7 @@ describe('Product Controller', () => {
     });
 
     describe('realtedProduct', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should fetch related products excluding current product', async () => {
             //arrange
             const req = { params: { pid: '123', cid: '456' } };
@@ -882,10 +882,14 @@ describe('Product Controller', () => {
     });
 
     describe('productCategory', () => {
-        // Testing Strategy: branch coverage
-        it('should return paginated products for a category', async () => {
+        // Testing Strategy: equivalence class partitioning + boundary value analysis (page parameter)
+        it.each([
+            { page: '0', expectedSkip: 0, scenario: 'page value below boundary coerces to 1' },
+            { page: '1', expectedSkip: 0, scenario: 'page value at boundary stays at 1' },
+            { page: '2', expectedSkip: 6, scenario: 'page value above boundary paginates correctly' },
+        ])('should paginate products when $scenario', async ({ page, expectedSkip }) => {
             // arrange
-            const req = { params: { slug: 'cat-slug', page: 2 } };
+            const req = { params: { slug: 'cat-slug', page } };
             const mockCategory = { _id: 'cat-id' };
             const products = ['p1'];
             const mockSelect = jest.fn().mockReturnThis();
@@ -908,7 +912,7 @@ describe('Product Controller', () => {
             expect(mockCategoryModel.findOne).toHaveBeenCalledWith({ slug: 'cat-slug' });
             expect(mockProductModel.find).toHaveBeenCalledWith({ category: mockCategory._id });
             expect(mockSelect).toHaveBeenCalledWith('-photo');
-            expect(mockSkip).toHaveBeenCalledWith(6);
+            expect(mockSkip).toHaveBeenCalledWith(expectedSkip);
             expect(mockLimit).toHaveBeenCalledWith(6);
             expect(mockSort).toHaveBeenCalledWith({ createdAt: -1 });
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -939,7 +943,7 @@ describe('Product Controller', () => {
     });
 
     describe('productCategoryCount', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should return total count for category', async () => {
             // arrange
             const req = { params: { slug: 'cat-slug' } };
@@ -994,7 +998,7 @@ describe('Product Controller', () => {
     });
 
     describe('braintreeToken', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should return client token on success', async () => {
             //arrange
             const req = {};
@@ -1027,7 +1031,7 @@ describe('Product Controller', () => {
     });
 
     describe('brainTreePayment', () => {
-        // Testing Strategy: branch coverage
+        // Testing Strategy: output equivalance partitioning
         it('should create order on successful transaction', async () => {
             //arrange
             const req = { body: { nonce: 'nonce', cart: [{ price: 10 }] }, user: { _id: 'user123' } };

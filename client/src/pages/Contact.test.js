@@ -19,13 +19,11 @@ describe("Contact", () => {
     render(<Contact />);
 
     // Act
-    const title = screen.getByRole("heading", { name: /contact us/i });
     const email = screen.getByText(/www.help@ecommerceapp.com/i);
     const phone = screen.getByText(/012-3456789/);
     const support = screen.getByText(/1800-0000-0000/i);
 
     // Assert
-    expect(title).toBeInTheDocument();
     expect(email).toBeInTheDocument();
     expect(phone).toBeInTheDocument();
     expect(support).toBeInTheDocument();

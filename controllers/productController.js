@@ -343,7 +343,7 @@ export const productCategoryCountController = async (req, res) => {
 export const productListController = async (req, res) => {
   try {
     const perPage = 6;
-    const page = req.params.page ? req.params.page : 1;
+    const page = Math.max(1, parseInt(req.params.page) || 1);
     const products = await productModel
       .find({})
       .select("-photo")
@@ -417,7 +417,7 @@ export const realtedProductController = async (req, res) => {
 export const productCategoryController = async (req, res) => {
   try {
     const perPage = 6;
-    const page = req.params.page ? req.params.page : 1;
+    const page = Math.max(1, parseInt(req.params.page) || 1);
 
     const category = await categoryModel.findOne({ slug: req.params.slug });
     const products = await productModel

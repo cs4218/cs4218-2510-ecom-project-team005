@@ -124,7 +124,7 @@ describe('Private Route Test Suite', () => {
   });
 
   // Network Error Handling
-  test('should handle API network errors gracefully - EXPOSES BUG', async () => {
+  test('should handle API network errors gracefully', async () => {
     // Arrange - Set up network failure
     useAuth.mockReturnValue([{ token: 'valid-token' }]);
     axios.get.mockRejectedValue(new Error('Network Error')); // Simulate network failure
