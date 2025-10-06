@@ -19,7 +19,7 @@ describe("Product Model", () => {
       expect(paths.slug.instance).toBe("String");
       expect(paths.description.instance).toBe("String");
       expect(paths.price.instance).toBe("Number");
-      expect(paths.category.instance).toBe("ObjectID");
+      expect(paths.category.instance).toBe("ObjectId");
       expect(paths.quantity.instance).toBe("Number");
       expect(paths.shipping.instance).toBe("Boolean");
     });
