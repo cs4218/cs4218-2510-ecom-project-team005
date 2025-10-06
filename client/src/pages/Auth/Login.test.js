@@ -25,6 +25,10 @@ jest.mock('../../context/search', () => ({
 jest.mock("../../hooks/useCategory", () => jest.fn(() => [])) // Lab 2 solution
 
 
+jest.mock("../../hooks/useCategory", () => jest.fn(() => [])); //Mock the get on useCategory
+
+
+
   Object.defineProperty(window, 'localStorage', {
     value: {
       setItem: jest.fn(),

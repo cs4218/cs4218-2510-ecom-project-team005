@@ -46,15 +46,16 @@ const CreateProduct = () => {
       productData.append("quantity", quantity);
       productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.post(
+      productData.append("shipping", shipping); // HOU QINGSHAN originally missing shipping field here, now send it to backend
+      const { data } = await axios.post( // HOU QINGSHAN originally missing await here
         "/api/v1/product/create-product",
         productData
       );
-      if (data?.success) {
-        toast.error(data?.message);
-      } else {
+      if (data?.success) { // HOU QINGSHAN Originally this logic was reversed
         toast.success("Product Created Successfully");
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -152,7 +153,7 @@ const CreateProduct = () => {
               <div className="mb-3">
                 <Select
                   bordered={false}
-                  placeholder="Select Shipping "
+                  placeholder="Select Shipping"
                   size="large"
                   showSearch
                   className="form-select mb-3"

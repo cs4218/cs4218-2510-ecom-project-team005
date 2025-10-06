@@ -27,11 +27,11 @@ router.put(
   updateCategoryController
 );
 
-//getALl category
-router.get("/get-category", categoryController);
+//getAll category
+router.get("/get-category", categoryController); // HOU QINGSHAN Update spelling mistake for categoryController
 
 //single category
-router.get("/single-category/:slug", singleCategoryController);
+router.get("/single-category/:slug", singleCategoryController); 
 
 //delete category
 router.delete(
