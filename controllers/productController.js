@@ -144,6 +144,7 @@ export const productPhotoController = async (req, res) => {
 
 // delete controller
 export const deleteProductController = async (req, res) => {
+  
   try {
     /* Admin Authorization Check */
     /* Only admins should be able to delete products */
