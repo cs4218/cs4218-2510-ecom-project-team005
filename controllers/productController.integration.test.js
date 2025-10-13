@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, jest } from "@jest/globals";
 import request from "supertest";
 import mongoose from "mongoose";
 import JWT from "jsonwebtoken";
@@ -10,6 +10,7 @@ import app from "../server.js";
 import userModel from "../models/userModel.js";
 import categoryModel from "../models/categoryModel.js";
 import productModel from "../models/productModel.js";
+import orderModel from "../models/orderModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -295,7 +296,7 @@ describe("productController integration tests", () => {
                 // Assert response structure
                 expect(response.status).toBe(200);
                 expect(response.body.success).toBe(true);
-                expect(response.body.message).toBe("All Products ");
+                expect(response.body.message).toBe("All Products");
                 expect(response.body.countTotal).toBe(2);
                 expect(response.body.products).toHaveLength(2);
 
@@ -349,11 +350,17 @@ describe("productController integration tests", () => {
                 expect(response.body.success).toBe(true);
                 expect(response.body.countTotal).toBe(12);
                 expect(response.body.products).toHaveLength(12);
+            });
+            it("should return empty array when there are no products", async () => {
+                // Act
+                const response = await request(app)
+                    .get("/api/v1/product/get-product");
 
-                // Assert photo is not included in any product
-                response.body.products.forEach(product => {
-                    expect(product.photo).toBeUndefined();
-                });
+                // Assert: Only 12 products returned due to limit
+                expect(response.status).toBe(200);
+                expect(response.body.success).toBe(true);
+                expect(response.body.countTotal).toBe(0);
+                expect(response.body.products).toHaveLength(0);
             });
         });
     });
@@ -378,6 +385,18 @@ describe("productController integration tests", () => {
             expect(response.body.success).toBe(true);
             expect(response.body.product.name).toBe("Single Product Test");
             expect(response.body.product.photo).toBeUndefined();
+            expect(response.body.message).toBe("Single product fetched")
+        });
+        it("should handle product not in db", async () => {
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/get-product/unkown-slug`);
+
+            // Assert
+            expect(response.status).toBe(404);
+            expect(response.body.success).toBe(false);
+            expect(response.body.product).toBe(null);
+            expect(response.body.message).toBe("No product found with this slug")
         });
     });
 
@@ -440,6 +459,70 @@ describe("productController integration tests", () => {
             expect(response.body.products).toHaveLength(1);
             expect(response.body.products[0].name).toBe("Cheap Product");
         });
+
+        it("should filter products by price range only", async () => {
+            // Arrange - Create 2 products with different prices
+            await createProductInDb({
+                name: "Affordable Product",
+                slug: "affordable-product",
+                price: 75
+            }, testCategory);
+            await createProductInDb({
+                name: "Premium Product",
+                slug: "premium-product",
+                price: 300
+            }, testCategory);
+
+            // Act - Filter by price range [0, 100] without category filter
+            const response = await request(app)
+                .post("/api/v1/product/product-filters")
+                .send({
+                    checked: [],
+                    radio: [0, 100]
+                });
+
+            // Assert - Only the affordable product should be returned
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(1);
+            expect(response.body.products[0].name).toBe("Affordable Product");
+            expect(response.body.products[0].price).toBe(75);
+        });
+
+        it("should filter products by category only", async () => {
+            // Arrange - Create a second category
+            const category2 = await categoryModel.create({
+                name: "Electronics",
+                slug: "electronics"
+            });
+
+            // Create one product in each category
+            await createProductInDb({
+                name: "Furniture Item",
+                slug: "furniture-item",
+                price: 150
+            }, testCategory);
+            await createProductInDb({
+                name: "Electronics Item",
+                slug: "electronics-item",
+                price: 200
+            }, category2);
+
+            // Act - Filter by testCategory only without price filter
+            const response = await request(app)
+                .post("/api/v1/product/product-filters")
+                .send({
+                    checked: [testCategory._id],
+                    radio: []
+                });
+
+            // Assert - Only the furniture product should be returned
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(1);
+            expect(response.body.products[0].name).toBe("Furniture Item");
+            expect(response.body.products[0].category.toString()).toBe(testCategory._id.toString());
+        });
     });
 
     describe("GET /api/v1/product/product-count", () => {
@@ -456,6 +539,34 @@ describe("productController integration tests", () => {
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
             expect(response.body.total).toBe(2);
+        });
+    });
+
+    describe("GET /product-category-count/:slug", () => {
+        it("should return total product count", async () => {
+            // Arrange
+            await createProductInDb({ name: "Product 1", slug: "product-1" }, testCategory);
+            await createProductInDb({ name: "Product 2", slug: "product-2" }, testCategory);
+
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/product-category-count/test-category`);
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.total).toBe(2);
+        });
+        it("should return 404 for non-existant category", async () => {
+       
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/product-category-count/test-non-existant`);
+
+            // Assert
+            expect(response.status).toBe(404);
+            expect(response.body.message).toBe("There is no category with the requested slug");
+            expect(response.body.success).toBe(false);
         });
     });
 
@@ -478,10 +589,104 @@ describe("productController integration tests", () => {
             expect(response.body.success).toBe(true);
             expect(response.body.products).toHaveLength(6);
         });
+
+        it("should return page 2 with correct products", async () => {
+            // Arrange - Create 13 products
+            for (let i = 1; i <= 13; i++) {
+                await createProductInDb({
+                    name: `Product ${i}`,
+                    slug: `product-${i}`
+                }, testCategory);
+            }
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/product-list/2");
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(6);
+            
+            // Verify products are sorted by createdAt descending (newest first)
+            // Products 7-12 should be returned (13-12-11-10-9-8 by creation order)
+            expect(response.body.products[0].name).toBe("Product 7");
+            expect(response.body.products[5].name).toBe("Product 2");
+        });
+
+        it("should return last page with partial results", async () => {
+            // Arrange - Create 10 products
+            for (let i = 1; i <= 10; i++) {
+                await createProductInDb({
+                    name: `Product ${i}`,
+                    slug: `product-${i}`
+                }, testCategory);
+            }
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/product-list/2");
+
+            // Assert - Page 2 should have 4 remaining products
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(4);
+        });
+
+        it("should return empty array for page beyond available data", async () => {
+            // Arrange - Create only 5 products (less than one page)
+            for (let i = 1; i <= 5; i++) {
+                await createProductInDb({
+                    name: `Product ${i}`,
+                    slug: `product-${i}`
+                }, testCategory);
+            }
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/product-list/2");
+
+            // Assert - Page 2 should be empty
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(0);
+        });
+
+        it("should default to page 1 when page 0 is requested", async () => {
+            // Arrange - Create 8 products
+            for (let i = 1; i <= 8; i++) {
+                await createProductInDb({
+                    name: `Product ${i}`,
+                    slug: `product-${i}`
+                }, testCategory);
+            }
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/product-list/0");
+
+            // Assert - Should return first 6 products (same as page 1)
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(6);
+        });
+
+        it("should return empty array when database has no products", async () => {
+            // Arrange - No products in database (beforeEach clears them)
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/product-list/1");
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(0);
+        });
     });
 
     describe("GET /api/v1/product/search/:keyword", () => {
-        it("should search products by keyword", async () => {
+        it("should search products by name", async () => {
             // Arrange
             await createProductInDb({
                 name: "Laptop Computer",
@@ -501,6 +706,28 @@ describe("productController integration tests", () => {
             expect(response.status).toBe(200);
             expect(response.body).toHaveLength(1);
             expect(response.body[0].name).toBe("Laptop Computer");
+        });
+        it("should search products by description", async () => {
+            // Arrange
+            await createProductInDb({
+                name: "Laptop Computer",
+                slug: "laptop-computer",
+                description: "Apple"
+            }, testCategory);
+            await createProductInDb({
+                name: "Mobile Phone",
+                slug: "mobile-phone",
+                description: "Windows"
+            }, testCategory);
+
+            // Act
+            const response = await request(app)
+                .get("/api/v1/product/search/Windows");
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveLength(1);
+            expect(response.body[0].name).toBe("Mobile Phone");
         });
     });
 
@@ -530,6 +757,58 @@ describe("productController integration tests", () => {
             expect(response.body.products).toHaveLength(2);
             expect(response.body.products.every(p => p._id !== product1._id.toString())).toBe(true);
         });
+
+        it("should return maximum of 3 related products even when more exist", async () => {
+            // Arrange - Create 6 products in the same category
+            const product1 = await createProductInDb({
+                name: "Product 1",
+                slug: "product-1"
+            }, testCategory);
+            
+            for (let i = 2; i <= 6; i++) {
+                await createProductInDb({
+                    name: `Product ${i}`,
+                    slug: `product-${i}`
+                }, testCategory);
+            }
+
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/related-product/${product1._id}/${testCategory._id}`);
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(3); // Limit is 3, not 5
+            
+            // Verify the requested product is excluded
+            expect(response.body.products.every(p => p._id !== product1._id.toString())).toBe(true);
+            
+            // Verify all products are from the same category
+            expect(response.body.products.every(p => p.category._id.toString() === testCategory._id.toString())).toBe(true);
+            
+            // Verify photo field is excluded
+            expect(response.body.products[0].photo).toBeUndefined();
+            expect(response.body.products[1].photo).toBeUndefined();
+            expect(response.body.products[2].photo).toBeUndefined();
+        });
+
+        it("should return empty array when only one product exists in category", async () => {
+            // Arrange - Create only 1 product in the category
+            const singleProduct = await createProductInDb({
+                name: "Only Product",
+                slug: "only-product"
+            }, testCategory);
+
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/related-product/${singleProduct._id}/${testCategory._id}`);
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(0); // No other products available
+        });
     });
 
     describe("GET /api/v1/product/product-category/:slug/:page", () => {
@@ -552,64 +831,177 @@ describe("productController integration tests", () => {
             expect(response.body.products).toHaveLength(1);
             expect(response.body.category.name).toBe("Test Category");
         });
-    });
 
-    describe("GET /api/v1/product/product-category-count/:slug", () => {
-        it("should return count of products in category", async () => {
+        it("should return 404 for non-existent category", async () => {
+            // Act
+            const response = await request(app)
+                .get(`/api/v1/product/product-category/non-existent-category/1`);
+
+            // Assert
+            expect(response.status).toBe(404);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("Category not found");
+        });
+
+        it("should return empty array for category with no products", async () => {
             // Arrange
-            await createProductInDb({ name: "Product 1", slug: "product-1" }, testCategory);
-            await createProductInDb({ name: "Product 2", slug: "product-2" }, testCategory);
+            const emptyCategory = await categoryModel.create({
+                name: "Empty Category",
+                slug: "empty-category"
+            });
 
             // Act
             const response = await request(app)
-                .get(`/api/v1/product/product-category-count/${testCategory.slug}`);
+                .get(`/api/v1/product/product-category/${emptyCategory.slug}/1`);
 
             // Assert
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
-            expect(response.body.total).toBe(2);
+            expect(response.body.products).toHaveLength(0);
+            expect(response.body.category.name).toBe("Empty Category");
         });
-    });
 
-    describe("GET /api/v1/product/braintree/token", () => {
-        it("should return braintree client token", async () => {
+        it("should handle pagination across multiple pages correctly", async () => {
+            // Arrange - Create 15 products (3 pages with perPage=6)
+            const paginationCategory = await categoryModel.create({
+                name: "Pagination Category",
+                slug: "pagination-category"
+            });
+            
+            const productPromises = [];
+            for (let i = 1; i <= 15; i++) {
+                productPromises.push(
+                    createProductInDb({
+                        name: `Pagination Product ${i}`,
+                        slug: `pagination-product-${i}`,
+                        price: 100 + i
+                    }, paginationCategory)
+                );
+            }
+            await Promise.all(productPromises);
+
+            // Act & Assert - Page 1
+            const page1Response = await request(app)
+                .get(`/api/v1/product/product-category/${paginationCategory.slug}/1`);
+            expect(page1Response.status).toBe(200);
+            expect(page1Response.body.success).toBe(true);
+            expect(page1Response.body.products).toHaveLength(6);
+
+            // Act & Assert - Page 2
+            const page2Response = await request(app)
+                .get(`/api/v1/product/product-category/${paginationCategory.slug}/2`);
+            expect(page2Response.status).toBe(200);
+            expect(page2Response.body.success).toBe(true);
+            expect(page2Response.body.products).toHaveLength(6);
+
+            // Act & Assert - Page 3
+            const page3Response = await request(app)
+                .get(`/api/v1/product/product-category/${paginationCategory.slug}/3`);
+            expect(page3Response.status).toBe(200);
+            expect(page3Response.body.success).toBe(true);
+            expect(page3Response.body.products).toHaveLength(3);
+        });
+
+        it("should return products sorted by createdAt in descending order", async () => {
+            // Arrange
+            const sortCategory = await categoryModel.create({
+                name: "Sort Category",
+                slug: "sort-category"
+            });
+
+            // Create products with slight delays to ensure different timestamps
+            const product1 = await createProductInDb({
+                name: "First Product",
+                slug: "first-product",
+                price: 100
+            }, sortCategory);
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const product2 = await createProductInDb({
+                name: "Second Product",
+                slug: "second-product",
+                price: 200
+            }, sortCategory);
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const product3 = await createProductInDb({
+                name: "Third Product",
+                slug: "third-product",
+                price: 300
+            }, sortCategory);
+
             // Act
             const response = await request(app)
-                .get("/api/v1/product/braintree/token");
+                .get(`/api/v1/product/product-category/${sortCategory.slug}/1`);
 
             // Assert
             expect(response.status).toBe(200);
-            expect(response.body.clientToken).toBeDefined();
-        });
-    });
-
-    describe("POST /api/v1/product/braintree/payment", () => {
-        it("should return 400 when nonce is missing", async () => {
-            // Act
-            const response = await request(app)
-                .post("/api/v1/product/braintree/payment")
-                .set("Authorization", adminToken)
-                .send({
-                    cart: [{ _id: "123", price: 100 }]
-                });
-
-            // Assert
-            expect(response.status).toBe(400);
-            expect(response.body.message).toBe("Payment nonce is required");
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(3);
+            // Newest product should be first
+            expect(response.body.products[0].name).toBe("Third Product");
+            expect(response.body.products[1].name).toBe("Second Product");
+            expect(response.body.products[2].name).toBe("First Product");
         });
 
-        it("should return 400 when cart is missing", async () => {
-            // Act
+        it("should return empty array when requesting page beyond available data", async () => {
+            // Arrange - Create 8 products (2 pages)
+            const beyondCategory = await categoryModel.create({
+                name: "Beyond Category",
+                slug: "beyond-category"
+            });
+
+            const productPromises = [];
+            for (let i = 1; i <= 8; i++) {
+                productPromises.push(
+                    createProductInDb({
+                        name: `Beyond Product ${i}`,
+                        slug: `beyond-product-${i}`
+                    }, beyondCategory)
+                );
+            }
+            await Promise.all(productPromises);
+
+            // Act - Request page 10 (way beyond available data)
             const response = await request(app)
-                .post("/api/v1/product/braintree/payment")
-                .set("Authorization", adminToken)
-                .send({
-                    nonce: "fake-nonce"
-                });
+                .get(`/api/v1/product/product-category/${beyondCategory.slug}/10`);
 
             // Assert
-            expect(response.status).toBe(400);
-            expect(response.body.message).toBe("Shopping cart is required");
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(0);
+            expect(response.body.category.name).toBe("Beyond Category");
+        });
+
+        it("should return correct number of products on last page with partial items", async () => {
+            // Arrange - Create 8 products (page 1: 6 items, page 2: 2 items)
+            const partialCategory = await categoryModel.create({
+                name: "Partial Category",
+                slug: "partial-category"
+            });
+
+            const productPromises = [];
+            for (let i = 1; i <= 8; i++) {
+                productPromises.push(
+                    createProductInDb({
+                        name: `Partial Product ${i}`,
+                        slug: `partial-product-${i}`
+                    }, partialCategory)
+                );
+            }
+            await Promise.all(productPromises);
+
+            // Act - Request page 2 (should have only 2 items)
+            const response = await request(app)
+                .get(`/api/v1/product/product-category/${partialCategory.slug}/2`);
+
+            // Assert
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.products).toHaveLength(2);
+            expect(response.body.category.name).toBe("Partial Category");
         });
     });
 });

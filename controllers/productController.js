@@ -85,7 +85,7 @@ export const getProductController = async (req, res) => {
     res.status(200).send({
       success: true,
       countTotal: products.length,
-      message: "All Products ",
+      message: "All Products",
       products,
     });
   } catch (error) {
@@ -105,11 +105,19 @@ export const getSingleProductController = async (req, res) => {
       .findOne({ slug: req.params.slug })
       .select("-photo")
       .populate("category");
-    res.status(200).send({
+    if(product){
+        res.status(200).send({
       success: true,
       message: "Single product fetched",
       product,
     });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: "No product found with this slug",
+        product,
+    })
+  }
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -286,7 +294,7 @@ export const productFiltersController = async (req, res) => {
     let args = {};
     if (checked.length > 0) args.category = checked;
     if (radio.length) args.price = { $gte: radio[0], $lte: radio[1] };
-    const products = await productModel.find(args);
+    const products = await productModel.find(args).limit(12);
     res.status(200).send({
       success: true,
       products,
@@ -322,6 +330,13 @@ export const productCountController = async (req, res) => {
 export const productCategoryCountController = async (req, res) => {
   try {
     const category = await categoryModel.findOne({ slug: req.params.slug });
+    if(!category) {
+      res.status(404).send({
+        success: false,
+        message: "There is no category with the requested slug"
+      });
+      return;
+    }
     const total = await productModel
       .find({ category: category._id })
       .countDocuments();
@@ -421,6 +436,12 @@ export const productCategoryController = async (req, res) => {
     const page = Math.max(1, parseInt(req.params.page) || 1);
 
     const category = await categoryModel.findOne({ slug: req.params.slug });
+    if (!category) {
+      return res.status(404).send({
+        success: false,
+        message: "Category not found",
+      });
+    }
     const products = await productModel
       .find({ category: category._id })
       .select("-photo")
@@ -488,7 +509,7 @@ export const brainTreePaymentController = async (req, res) => {
       });
     }
     
-    if (!cart || !Array.isArray(cart)) {
+    if (cart.length == 0) {
       return res.status(400).send({
         success: false,
         message: "Shopping cart cannot be empty",
@@ -515,7 +536,10 @@ export const brainTreePaymentController = async (req, res) => {
               payment: result,
               buyer: req.user._id,
             }).save();
-            res.json({ ok: true });
+            return res.status(200).send({
+              success: true,
+              message: "Payment done",
+            });
           } catch (saveError) {
             console.log(saveError);
             res.status(500).send({
