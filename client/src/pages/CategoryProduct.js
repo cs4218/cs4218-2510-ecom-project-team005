@@ -18,15 +18,33 @@ const CategoryProduct = () => {
 
   useEffect(() => {
     if (params?.slug) {
-      getPrductsByCat();
+      setProducts([]);
+      setPage(1);
       getTotal();
+      loadInitialProducts();
     }
   }, [params?.slug]);
 
   useEffect(() => {
-    if (page === 1) return;
-    getPrductsByCat();
+    if (page > 1 && params?.slug) {
+      getPrductsByCat();
+    }
   }, [page]);
+
+  const loadInitialProducts = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `/api/v1/product/product-category/${params.slug}/1`
+      );
+      setProducts(data?.products);
+      setCategory(data?.category);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
    //getTotal Count
    const getTotal = async () => {

@@ -2,9 +2,19 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export async function clearDatabase() {
-  for (const key in mongoose.connection.collections) {
-    await mongoose.connection.collections[key].deleteMany({});
-  }
+  // Import models to ensure they're registered
+  const { default: Category } = await import('../../models/categoryModel.js');
+  const { default: Product } = await import('../../models/productModel.js');
+  const { default: User } = await import('../../models/userModel.js');
+  const { default: Order } = await import('../../models/orderModel.js');
+  
+  // Clear all collections using models
+  await Promise.all([
+    Category.deleteMany({}),
+    Product.deleteMany({}),
+    User.deleteMany({}),
+    Order.deleteMany({})
+  ]);
 }
 
 export async function seedCategories() {
@@ -135,7 +145,7 @@ export async function seedUsers() {
       email: 'admin@test.com',
       password: hashedPassword,
       phone: '+11234567890',
-      address: { street: '123 Admin St', city: 'Test City', zip: '12345' },
+      address: '123 Admin St Test City 12345',
       answer: 'pizza',
       role: 1
     },
@@ -144,7 +154,16 @@ export async function seedUsers() {
       email: 'user@test.com',
       password: hashedPassword,
       phone: '+10987654321',
-      address: { street: '456 User Ave', city: 'Test City', zip: '54321' },
+      address: '456 User Ave, Test City, 54321',
+      answer: 'pizza',
+      role: 0
+    },
+    {
+      name: 'User No Address',
+      email: 'noaddress@test.com',
+      password: hashedPassword,
+      phone: '+10987654322',
+      address: '',
       answer: 'pizza',
       role: 0
     }
