@@ -28,10 +28,10 @@ const Orders = () => {
             <UserMenu />
           </div>
           <div className="col-md-9">
-            <h1 className="text-center">All Orders</h1>
+            <h1 className="text-center" data-testid="orders-title">All Orders</h1>
             {orders?.map((o, i) => {
               return (
-                <div className="border shadow">
+                <div className="border shadow" key={o._id} data-testid={`order-${i}`}>
                   <table className="table">
                     <thead>
                       <tr>
@@ -45,18 +45,18 @@ const Orders = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{i + 1}</td>
-                        <td>{o?.status}</td>
-                        <td>{o?.buyer?.name}</td>
-                        <td>{moment(o?.createAt).fromNow()}</td>
-                        <td>{o?.payment.success ? "Success" : "Failed"}</td>
-                        <td>{o?.products?.length}</td>
+                        <td data-testid={`order-number-${i}`}>{i + 1}</td>
+                        <td data-testid={`order-status-${i}`}>{o?.status}</td>
+                        <td data-testid={`order-buyer-${i}`}>{o?.buyer?.name}</td>
+                        <td data-testid={`order-date-${i}`}>{moment(o?.createAt).fromNow()}</td>
+                        <td data-testid={`order-payment-${i}`}>{o?.payment.success ? "Success" : "Failed"}</td>
+                        <td data-testid={`order-quantity-${i}`}>{o?.products?.length}</td>
                       </tr>
                     </tbody>
                   </table>
                   <div className="container">
-                    {o?.products?.map((p, i) => (
-                      <div className="row mb-2 p-3 card flex-row" key={p._id}>
+                    {o?.products?.map((p, j) => (
+                      <div className="row mb-2 p-3 card flex-row" key={p._id} data-testid={`order-${i}-product-${j}`}>
                         <div className="col-md-4">
                           <img
                             src={`/api/v1/product/product-photo/${p._id}`}
@@ -67,9 +67,9 @@ const Orders = () => {
                           />
                         </div>
                         <div className="col-md-8">
-                          <p>{p.name}</p>
-                          <p>{p.description.substring(0, 30)}</p>
-                          <p>Price : {p.price}</p>
+                          <p data-testid={`order-${i}-product-${j}-name`}>{p.name}</p>
+                          <p data-testid={`order-${i}-product-${j}-description`}>{p.description.substring(0, 30)}</p>
+                          <p data-testid={`order-${i}-product-${j}-price`}>Price : {p.price}</p>
                         </div>
                       </div>
                     ))}

@@ -1,9 +1,10 @@
 import { test, expect } from '../fixtures/testData.js';
 
-test.describe.configure({mode: "parallel"});
+test.describe.configure({mode: "serial"});
 
 test.describe("Navigation to category pages", () => {
-    test.beforeEach(async ({page})=> {
+    test.beforeEach(async ({page, testData})=> {
+        await testData.seedAll();
         await page.goto("http://localhost:3000")
     })
 
