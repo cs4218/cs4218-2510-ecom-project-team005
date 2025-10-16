@@ -57,12 +57,13 @@ const CategoryProduct = () => {
     <Layout>
       <div className="container mt-3 category">
         <h4 className="text-center" data-testid="category-title">Category - {category?.name}</h4>
-        <h6 className="text-center">{total} result found </h6>
+        <h6 className="text-center" data-testid="product-count">{total} result found </h6>
         <div className="row">
           <div className="col-md-9 offset-1">
-            <div className="d-flex flex-wrap">
+            {products && products.length > 0 ? (
+            <div className="d-flex flex-wrap" data-testid="products-container">
               {products?.map((p) => (
-                <div className="card m-2" key={p._id}>
+                <div className="card m-2" key={p._id} data-testid={`product-card-${p.slug}`}>
                   <img
                     src={`/api/v1/product/product-photo/${p._id}`}
                     className="card-img-top"
@@ -84,12 +85,14 @@ const CategoryProduct = () => {
                     <div className="card-name-price">
                       <button
                         className="btn btn-info ms-1"
+                        data-testid={`more-details-${p.slug}`}
                         onClick={() => navigate(`/product/${p.slug}`)}
                       >
                         More Details
                       </button>
                       { <button
                     className="btn btn-dark ms-1"
+                    data-testid={`add-to-cart-${p.slug}`}
                     onClick={() => {
                       setCart([...cart, p]);
                       localStorage.setItem(
@@ -106,10 +109,16 @@ const CategoryProduct = () => {
                 </div>
               ))}
             </div>
+            ) : (
+              <div className="col-12 text-center mt-5">
+                <p data-testid="no-products">No products available in this category.</p>
+              </div>
+            )}
             { <div className="m-2 p-3">
             {products && products.length < total && (
               <button
                 className="btn btn-warning"
+                data-testid="load-more-button"
                 onClick={(e) => {
                   e.preventDefault();
                   setPage(page + 1);

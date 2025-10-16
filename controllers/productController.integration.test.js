@@ -571,6 +571,10 @@ describe("productController integration tests", () => {
     });
 
     describe("GET /api/v1/product/product-list/:page", () => {
+        beforeEach(async () => {
+            await productModel.deleteMany({});
+        });
+
         it("should return paginated products", async () => {
             // Arrange
             for (let i = 1; i <= 8; i++) {
@@ -597,6 +601,7 @@ describe("productController integration tests", () => {
                     name: `Product ${i}`,
                     slug: `product-${i}`
                 }, testCategory);
+                await new Promise(resolve => setTimeout(resolve, 10));
             }
 
             // Act
