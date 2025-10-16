@@ -5,3 +5,7 @@ node_modules
 /playwright/.cache/
 .env
 coverage/
+
+# Playwright
+/playwright/.auth/
+.playwright-temp/

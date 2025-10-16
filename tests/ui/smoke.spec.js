@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/testData.js';
 
 test('homepage shows Login link', async ({ page }) => {
   await page.goto('/');

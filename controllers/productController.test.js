@@ -274,7 +274,7 @@ describe('Product Controller', () => {
             expect(mockRes.send).toHaveBeenCalledWith({
                 success: true,
                 countTotal: mockProducts.length,
-                message: "All Products ",
+                message: "All Products",
                 products: mockProducts
             });
         });
@@ -638,13 +638,17 @@ describe('Product Controller', () => {
             //arrange
             const req = { body: { checked: ['cat1'], radio: [10, 50] } };
             const filteredProducts = [{ name: 'Filtered' }];
-            mockProductModel.find = jest.fn().mockResolvedValue(filteredProducts);
+            const chainableQuery = {
+                limit: jest.fn().mockResolvedValue(filteredProducts)
+            };
+            mockProductModel.find = jest.fn().mockReturnValue(chainableQuery);
 
             //act
             await productFiltersController(req, mockRes);
 
             //assert
             expect(mockProductModel.find).toHaveBeenCalledWith({ category: ['cat1'], price: { $gte: 10, $lte: 50 } });
+            expect(chainableQuery.limit).toHaveBeenCalledWith(12);
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.send).toHaveBeenCalledWith({ success: true, products: filteredProducts });
         });
@@ -653,13 +657,17 @@ describe('Product Controller', () => {
             //arrange
             const req = { body: { checked: [], radio: [] } };
             const allProducts = [{ name: 'A' }];
-            mockProductModel.find = jest.fn().mockResolvedValue(allProducts);
+            const chainableQuery = {
+                limit: jest.fn().mockResolvedValue(allProducts)
+            };
+            mockProductModel.find = jest.fn().mockReturnValue(chainableQuery);
 
             //act
             await productFiltersController(req, mockRes);
 
             //assert
             expect(mockProductModel.find).toHaveBeenCalledWith({});
+            expect(chainableQuery.limit).toHaveBeenCalledWith(12);
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.send).toHaveBeenCalledWith({ success: true, products: allProducts });
         });
@@ -668,7 +676,10 @@ describe('Product Controller', () => {
             //arrange
             const req = { body: { checked: [], radio: [] } };
             const mockError = new Error('Filter failure');
-            mockProductModel.find = jest.fn().mockRejectedValue(mockError);
+            const chainableQuery = {
+                limit: jest.fn().mockRejectedValue(mockError)
+            };
+            mockProductModel.find = jest.fn().mockReturnValue(chainableQuery);
 
             //act
             await productFiltersController(req, mockRes);
@@ -1053,7 +1064,11 @@ describe('Product Controller', () => {
                 }),
                 expect.any(Function)
             );
-            expect(mockRes.json).toHaveBeenCalledWith({ ok: true });
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.send).toHaveBeenCalledWith({
+                success: true,
+                message: "Payment done"
+            });
         });
 
         it('should send 500 when gateway sale fails', async () => {
@@ -1077,7 +1092,7 @@ describe('Product Controller', () => {
 
         it('should handle synchronous errors in payment controller', async () => {
             //arrange
-            const req = { body: { nonce: 'nonce', cart: [] }, user: { _id: 'user123' } };
+            const req = { body: { nonce: 'nonce', cart: [{ price: 10 }] }, user: { _id: 'user123' } };
             const mockError = new Error('Payment failure');
             mockGateway.transaction.sale.mockImplementation(() => {
                 throw mockError;
