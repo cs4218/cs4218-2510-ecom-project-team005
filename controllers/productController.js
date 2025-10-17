@@ -509,7 +509,7 @@ export const brainTreePaymentController = async (req, res) => {
       });
     }
     
-    if (!cart || !Array.isArray(cart)) {
+    if (cart.length == 0) {
       return res.status(400).send({
         success: false,
         message: "Shopping cart cannot be empty",
@@ -540,6 +540,7 @@ export const brainTreePaymentController = async (req, res) => {
               success: true,
               message: "Payment done",
             });
+            //res.json({ok: true})
           } catch (saveError) {
             console.log(saveError);
             res.status(500).send({
