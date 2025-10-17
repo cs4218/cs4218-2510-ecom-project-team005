@@ -9,7 +9,7 @@
         // lokasi test UI kita
         testDir: 'tests',
         workers: 1,
-        testMatch: /.*\.spec\.js/,  // only files ending with .spec.js
+
         use: {
             baseURL: 'http://localhost:3000',  // React app
             trace: 'on-first-retry',            // rekam jejak saat test gagal
