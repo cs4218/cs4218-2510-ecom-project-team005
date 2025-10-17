@@ -17,6 +17,3 @@ export const comparePassword = async (password,hashedPassword) => {
 
 
 
-hashPassword("1234").then(hash => {
-    console.log("Hash for 1234:", hash);
-});
