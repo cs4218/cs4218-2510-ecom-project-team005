@@ -2,7 +2,7 @@ import { jest, describe, test, expect, beforeAll, afterAll, beforeEach, afterEac
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-process.env.JWT_SECRET = "test_jwt_secret"; // <-- must be set before importing controller
+process.env.JWT_SECRET = "test_jwt_secret"; // must be set before importing controller
 
 import userModel from "../../models/userModel.js";
 import { hashPassword, comparePassword } from "../../helpers/authHelper.js";
@@ -19,14 +19,28 @@ import {
 let mongoServer;
 
 beforeAll(async () => {
+    if (mongoose.connection.readyState) {
+        await mongoose.disconnect();
+    }
+
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
+
+    await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    });
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    if (mongoose.connection.readyState) {
+        await mongoose.connection.dropDatabase(); // only if connected
+        await mongoose.disconnect();
+    }
+
+    if (mongoServer) {
+        await mongoServer.stop();
+    }
 });
 
 afterEach(async () => {
@@ -91,24 +105,14 @@ describe("registerController - full DB", () => {
         );
     });
 
-    // one representative tests just to see if nothing breaks even if there is no direct db interaction
     test("fails registration when email is missing", async () => {
-        req.body = {
-            name: "Alice",
-            email: "",          // missing
-            password: "password123",
-            phone: "1234567890",
-            address: "123 Street",
-            answer: "Blue"
-        };
-
+        req.body.email = "";
         await registerController(req, res);
 
         expect(res.send).toHaveBeenCalledWith(
             expect.objectContaining({ message: "Email is Required" })
         );
     });
-
 });
 
 // ----------------------
@@ -124,7 +128,6 @@ describe("loginController - full DB", () => {
             json: jest.fn()
         };
 
-        // Create a user in DB
         const passwordHash = await hashPassword("password123");
         await userModel.create({
             name: "Alice",
@@ -183,7 +186,6 @@ describe("forgotPasswordController - full DB", () => {
             json: jest.fn()
         };
 
-        // Create a user in DB
         const passwordHash = await hashPassword("password123");
         await userModel.create({
             name: "Alice",
@@ -193,8 +195,6 @@ describe("forgotPasswordController - full DB", () => {
             address: "123 Street",
             answer: "Blue",
         });
-
-
     });
 
     test("reset password successfully", async () => {
