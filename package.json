@@ -12,11 +12,11 @@
     "sonarqube": "sonar-scanner",
     "test": "npm run test:backend && npm run test:frontend",
     "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
-    "test:backend": "cross-env BRAINTREE_MERCHANT_ID=test BRAINTREE_PUBLIC_KEY=test BRAINTREE_PRIVATE_KEY=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
+    "test:backend": "cross-env SKIP_DB_CONNECTION=true SKIP_SERVER_START=true BRAINTREE_MERCHANT_ID=hmrc3kfrt2xrvtvp BRAINTREE_PUBLIC_KEY=d3rnqcjwn7zk4fpt BRAINTREE_PRIVATE_KEY=767ed9ddd903781349d4c2af441f8eaa node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
     "test:ui": "playwright test",
     "ui:report": "playwright show-report",
     "ui:codegen": "playwright codegen http://localhost:3000",
-    "coverage:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --runInBand",
+    "coverage:backend": "cross-env SKIP_DB_CONNECTION=true SKIP_SERVER_START=true node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --runInBand",
     "coverage:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage --runInBand",
     "coverage:all": "npm run coverage:backend && npm run coverage:frontend"
   },
@@ -56,6 +56,8 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "sonarqube-scanner": "^4.3.0",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "mongodb-memory-server": "^10.2.3"
+
   }
 }
