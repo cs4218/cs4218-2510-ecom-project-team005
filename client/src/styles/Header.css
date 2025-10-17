@@ -33,11 +33,19 @@
     color: #212529; /* Set text color */
   }
   
-  /* Badge */
-  .ant-badge-count {
-    background-color: #ff4d4f; /* Set background color */
-    color: #fff; /* Set text color */
-  }
+/* Badge */
+.nav-link .ant-badge {
+  display: inline-block;
+  vertical-align: baseline;
+  color: #212529; /* Set text color */
+  font-size: 1rem; /* Set font size */
+  font-weight: 400;
+}
+
+.ant-badge-count {
+  background-color: #ff4d4f; /* Set background color */
+  color: #fff; /* Set text color */
+}
   
   /* Search Input */
   .search-input {

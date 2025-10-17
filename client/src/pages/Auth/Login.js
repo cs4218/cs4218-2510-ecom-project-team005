@@ -51,7 +51,7 @@ const Login = () => {
   return (
     <Layout title="Login - Ecommerce App">
       <div className="form-container " style={{ minHeight: "90vh" }}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-testid="login-form">
           <h4 className="title">LOGIN FORM</h4>
 
           <div className="mb-3">
@@ -64,6 +64,7 @@ const Login = () => {
               id="exampleInputEmail1"
               placeholder="Enter Your Email "
               required
+              data-testid="login-email-input"
             />
           </div>
           <div className="mb-3">
@@ -75,6 +76,7 @@ const Login = () => {
               id="exampleInputPassword1"
               placeholder="Enter Your Password"
               required
+              data-testid="login-password-input"
             />
           </div>
           <div className="mb-3">
@@ -89,7 +91,7 @@ const Login = () => {
             </button>
           </div>
 
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" data-testid="login-submit-button">
             LOGIN
           </button>
         </form>

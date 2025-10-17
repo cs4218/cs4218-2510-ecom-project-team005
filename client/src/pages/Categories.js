@@ -19,7 +19,7 @@ const Categories = () => {
             ))
           ) : (
             <div className="col-12 text-center mt-5">
-              <p>No categories available at the moment.</p>
+              <p data-testid="no-categories">No categories available at the moment.</p>
             </div>
           )}
         </div>

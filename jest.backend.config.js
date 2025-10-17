@@ -2,8 +2,6 @@ export default {
     // display name
     displayName: "backend",
 
-
-
     // when testing backend
     testEnvironment: "node",
 
@@ -12,9 +10,16 @@ export default {
    //     "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
   //  },
 
+    globalSetup: "<rootDir>/tests/globalSetup.js",
+    globalTeardown: "<rootDir>/tests/globalTeardown.js",
+    setupFilesAfterEnv: [
+        "<rootDir>/tests/setupFile.js"
+    ],
+
     // which test to run
     testMatch: [
         "<rootDir>/controllers/**/*.test.js",
+        "<rootDir>/controllers/**/*.integration.test.js",
         "<rootDir>/helpers/**/*.test.js",
         "<rootDir>/middlewares/**/*.test.js",
         "<rootDir>/models/**/*.test.js",
@@ -31,6 +36,8 @@ export default {
         "<rootDir>/controllers/orders.controller.test.js",
         "<rootDir>/controllers/orders.controllers.unit.test.js"
     ],
+    maxWorkers: 1,
+    testTimeout: 30000,
 
 
     // jest code coverage

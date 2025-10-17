@@ -14,8 +14,9 @@ dotenv.config();
 
 const app = express();
 
-// 2. Connect DB hanya jika bukan di mode test
-if (process.env.NODE_ENV !== "test") {
+// 2. Connect DB (including for E2E tests with MongoDB Memory Server)
+// Skip only for unit/integration tests where tests manage DB connection
+if (process.env.SKIP_DB_CONNECTION !== "true") {
   connectDB();
 }
 
@@ -37,8 +38,9 @@ app.get("/", (req, res) => {
 // 6. Port config
 const PORT = process.env.PORT || 6060;
 
-// 7. Jalankan server hanya jika bukan test
-if (process.env.NODE_ENV !== "test") {
+// 7. Jalankan server hanya jika bukan unit/integration test
+// E2E tests need the server running (started by webServer in playwright.config.js)
+if (process.env.SKIP_SERVER_START !== "true") {
   app.listen(PORT, () => {
     console.log(
       `Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white

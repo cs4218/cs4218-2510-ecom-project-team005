@@ -58,7 +58,7 @@ const Profile = () => {
           </div>
           <div className="col-md-9">
             <div className="form-container ">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} data-testid="profile-form">
                 <h4 className="title">USER PROFILE</h4>
                 <div className="mb-3">
                   <input
@@ -69,6 +69,7 @@ const Profile = () => {
                     id="exampleInputEmail1"
                     placeholder="Enter Your Name"
                     autoFocus
+                    data-testid="profile-name-input"
                   />
                 </div>
                 <div className="mb-3">
@@ -80,6 +81,7 @@ const Profile = () => {
                     id="exampleInputEmail1"
                     placeholder="Enter Your Email "
                     disabled
+                    data-testid="profile-email-input"
                   />
                 </div>
                 <div className="mb-3">
@@ -90,6 +92,7 @@ const Profile = () => {
                     className="form-control"
                     id="exampleInputPassword1"
                     placeholder="Enter Your Password"
+                    data-testid="profile-password-input"
                   />
                 </div>
                 <div className="mb-3">
@@ -100,6 +103,7 @@ const Profile = () => {
                     className="form-control"
                     id="exampleInputEmail1"
                     placeholder="Enter Your Phone"
+                    data-testid="profile-phone-input"
                   />
                 </div>
                 <div className="mb-3">
@@ -110,10 +114,11 @@ const Profile = () => {
                     className="form-control"
                     id="exampleInputEmail1"
                     placeholder="Enter Your Address"
+                    data-testid="profile-address-input"
                   />
                 </div>
 
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary" data-testid="profile-update-button">
                   UPDATE
                 </button>
               </form>

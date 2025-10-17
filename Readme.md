@@ -5,7 +5,7 @@
 * Tag: `ms1`
 
 ## Member scope
-We splitted workout according to the recommended scope for a five persion team (4 features each). 
+We splitted workload according to the recommended scope for a five persion team (4 features each). 
 | Name | List of all the files that were tested by this person |
 | :--- | :--- |
 | **Jakob** | Admin Dashboard, Protected Routes, Product, Contact|
@@ -13,3 +13,22 @@ We splitted workout according to the recommended scope for a five persion team (
 | **Ridwan** | Order, Profile, Home, Cart|
 | **Arda** | Category, Payment, Admin View Product, General|
 | **Adnan** | Registration, Login, Admin View Users, Seach|
+
+
+### Integration testing scope
+| Name | List of files by person, integration testing |
+| :--- | :--- |
+| **Jakob** | productController.integration.test.ss (productController.js), brainTreeController.integration.test.js (productController.js)|
+| **Jimmy** | |
+| **Ridwan** | |
+| **Arda** | |
+| **Adnan** | |
+
+### E2E UI Testing
+| Name | List of files by person, integration testing |
+| :--- | :--- |
+| **Jakob** | category-browsing.test.js, checkout-flow.test.js, product-details.test.js |
+| **Jimmy** | |
+| **Ridwan** | |
+| **Arda** | |
+| **Adnan** | |
