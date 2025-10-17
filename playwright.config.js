@@ -6,6 +6,9 @@ export default defineConfig({
   globalSetup: './tests/playwright.globalSetup.js',
   globalTeardown: './tests/playwright.globalTeardown.js',
   
+  
+  workers: 1,
+  
   // lokasi test UI kita
   testDir: 'tests',
   use: {
