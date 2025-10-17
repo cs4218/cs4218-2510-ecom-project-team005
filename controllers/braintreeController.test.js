@@ -326,9 +326,9 @@ describe('Braintree Payment Controllers Test Suite', () => {
       });
 
       mockRes.send = jest.fn((response) => {
-        expect(mockRes.status).toHaveBeenCalledWith(200);
-        expect(response.success).toBe(true);
-        expect(response.message).toBe('Payment done');
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(response.success).toBe(false);
+        expect(response.message).toBe('Shopping cart cannot be empty');
         done();
       });
 
