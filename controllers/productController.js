@@ -509,7 +509,7 @@ export const brainTreePaymentController = async (req, res) => {
       });
     }
     
-    if (cart.length == 0) {
+    if (!cart || !Array.isArray(cart)) {
       return res.status(400).send({
         success: false,
         message: "Shopping cart cannot be empty",
