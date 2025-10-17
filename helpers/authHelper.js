@@ -14,3 +14,9 @@ export const hashPassword = async (password) => {
 export const comparePassword = async (password,hashedPassword) => {
     return bcrypt.compare(password, hashedPassword);
 }
+
+
+
+hashPassword("1234").then(hash => {
+    console.log("Hash for 1234:", hash);
+});

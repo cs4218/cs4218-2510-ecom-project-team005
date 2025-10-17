@@ -33,9 +33,15 @@ const Register = () => {
       } else {
         toast.error(res.data.message);
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+    } catch (error) { // only something went wrong before
+        console.error(error);
+
+        // Prüfen, ob Backend eine Fehlermeldung gesendet hat
+        if (error.response && error.response.data && error.response.data.message) {
+            toast.error(error.response.data.message);
+        } else {
+            toast.error("Something went wrong");
+        }
     }
   };
 
