@@ -48,7 +48,7 @@ const Orders = () => {
                         <td data-testid={`order-number-${i}`}>{i + 1}</td>
                         <td data-testid={`order-status-${i}`}>{o?.status}</td>
                         <td data-testid={`order-buyer-${i}`}>{o?.buyer?.name}</td>
-                        <td data-testid={`order-date-${i}`}>{moment(o?.createAt).fromNow()}</td>
+                        <td data-testid={`order-date-${i}`}>{moment(o?.createdAt).fromNow()}</td>
                         <td data-testid={`order-payment-${i}`}>{o?.payment.success ? "Success" : "Failed"}</td>
                         <td data-testid={`order-quantity-${i}`}>{o?.products?.length}</td>
                       </tr>
@@ -62,8 +62,7 @@ const Orders = () => {
                             src={`/api/v1/product/product-photo/${p._id}`}
                             className="card-img-top"
                             alt={p.name}
-                            width="100px"
-                            height={"100px"}
+                            style={{ height: "100px", objectFit: "contain" }}
                           />
                         </div>
                         <div className="col-md-8">

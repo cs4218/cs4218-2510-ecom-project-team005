@@ -56,9 +56,13 @@ jest.unstable_mockModule('braintree', () => ({
   }
 }));
 
-const { braintreeTokenController, brainTreePaymentController } = await import('./productController.js');
+let braintreeTokenController, brainTreePaymentController;
 
 describe('Braintree Payment Controllers Test Suite', () => {
+  beforeAll(async () => {
+    ({ braintreeTokenController, brainTreePaymentController } = await import('./productController.js'));
+  });
+
   let mockReq, mockRes;
 
   beforeEach(() => {
@@ -237,8 +241,8 @@ describe('Braintree Payment Controllers Test Suite', () => {
       // Mock successful order save
       mockSave.mockResolvedValue({ _id: 'order123', orderId: 'ORD123' });
 
-      const jsonPromise = new Promise((resolve) => {
-        mockRes.json = jest.fn((response) => {
+      const sendPromise = new Promise((resolve) => {
+        mockRes.send = jest.fn((response) => {
           resolve(response);
         });
       });
@@ -247,10 +251,12 @@ describe('Braintree Payment Controllers Test Suite', () => {
       brainTreePaymentController(mockReq, mockRes);
 
       // Assert - Wait for async operations to complete
-      const response = await jsonPromise;
+      const response = await sendPromise;
       expect(mockGateway.transaction.sale).toHaveBeenCalledTimes(1);
       expect(mockSave).toHaveBeenCalledTimes(1);
-      expect(response.ok).toBe(true);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(response.success).toBe(true);
+      expect(response.message).toBe('Payment done');
     });
 
     test('should validate input and reject missing nonce', (done) => {
@@ -319,8 +325,10 @@ describe('Braintree Payment Controllers Test Suite', () => {
         }
       });
 
-      mockRes.json = jest.fn((response) => {
-        expect(response.ok).toBe(true);
+      mockRes.send = jest.fn((response) => {
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        expect(response.success).toBe(true);
+        expect(response.message).toBe('Payment done');
         done();
       });
 
@@ -357,8 +365,10 @@ describe('Braintree Payment Controllers Test Suite', () => {
         }
       });
 
-      mockRes.json = jest.fn((response) => {
-        expect(response.ok).toBe(true);
+      mockRes.send = jest.fn((response) => {
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        expect(response.success).toBe(true);
+        expect(response.message).toBe('Payment done');
         done();
       });
 
@@ -479,8 +489,10 @@ describe('Braintree Payment Controllers Test Suite', () => {
         }
       });
 
-      mockRes.json = jest.fn((response) => {
-        expect(response.ok).toBe(true);
+      mockRes.send = jest.fn((response) => {
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        expect(response.success).toBe(true);
+        expect(response.message).toBe('Payment done');
         done();
       });
 
