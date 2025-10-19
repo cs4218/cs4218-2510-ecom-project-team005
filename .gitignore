@@ -9,3 +9,4 @@ coverage/
 # Playwright
 /playwright/.auth/
 .playwright-temp/
+.scannerwork/
