@@ -1,15 +1,21 @@
 import mongoose from 'mongoose';
 
-export async function connectDB() {
+export async function connectTestDb() {
   const uri = process.env.MONGO_URL;
-  await mongoose.connect(uri, { dbName: 'ecom_ms2_test' });
+  if (!uri) throw new Error('MONGO_URL belum diset (cek .env.test)');
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(uri);
+  }
 }
 
-export async function clearDB() {
-  const collections = await mongoose.connection.db.collections();
-  for (const c of collections) await c.deleteMany({});
+export async function clearTestDb() {
+  const { collections } = mongoose.connection;
+  for (const key of Object.keys(collections)) {
+    await collections[key].deleteMany({});
+  }
 }
 
-export async function disconnectDB() {
+export async function closeTestDb() {
+  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
 }
