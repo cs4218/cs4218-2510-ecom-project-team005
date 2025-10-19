@@ -20,7 +20,7 @@ We splitted workload according to the recommended scope for a five persion team 
 | :--- | :--- |
 | **Jakob** | productController.integration.test.ss (productController.js), brainTreeController.integration.test.js (productController.js)|
 | **Jimmy** | |
-| **Ridwan** | |
+| **Ridwan** | | Integration tests (auth/orders, admin all-orders, admin order-status), UI tests (filter+pagination, cart add/remove)
 | **Arda** | |
 | **Adnan** | |
 
