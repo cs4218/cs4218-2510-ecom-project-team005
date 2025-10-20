@@ -15,37 +15,41 @@ const Register = () => {
   const navigate = useNavigate();
 
   // form function
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/api/v1/auth/register", {
-        name,
-        email,
-        password,
-        phone,
-        address,
-        DOB,
-        answer,
-      });
-      if (res && res.data.success) {
-        toast.success("Registered Successfully, please login"); // changed Register to Registered. grammatically wrong
-        navigate("/login");
-      } else {
-        toast.error(res.data.message);
-      }
-    } catch (error) { // only something went wrong before
-        console.error(error);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-        // Prüfen, ob Backend eine Fehlermeldung gesendet hat
-        if (error.response && error.response.data && error.response.data.message) {
-            toast.error(error.response.data.message);
-        } else {
-            toast.error("Something went wrong");
+        try {
+            const res = await axios.post("/api/v1/auth/register", {
+                name: name.trim(),
+                email: email.trim(),
+                password: password.trim(),
+                phone: phone.trim(),
+                address: address.trim(),
+                DOB: DOB.trim(),
+                answer: answer.trim(),
+            });
+
+            if (res?.data?.success) {
+                toast.success("Registered Successfully, please login", {
+                    duration: 5000,
+                    style: { background: "green", color: "white" },
+                });
+                navigate("/login");
+            } else {
+                toast.error(res.data.message || "Registration failed");
+            }
+        } catch (error) {
+            console.error(error);
+            if (error.response?.data?.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Something went wrong");
+            }
         }
-    }
-  };
+    };
 
-  return (
+
+    return (
     <Layout title="Register - Ecommerce App">
       <div className="form-container" style={{ minHeight: "90vh" }}>
         <form onSubmit={handleSubmit}>

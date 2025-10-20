@@ -4,14 +4,14 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 
 process.env.JWT_SECRET = "test_jwt_secret"; // must be set before importing controller
 
-import userModel from "../../models/userModel.js";
-import { hashPassword, comparePassword } from "../../helpers/authHelper.js";
+import userModel from "../models/userModel.js";
+import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 import {
     registerController,
     loginController,
     forgotPasswordController,
     testController
-} from "../../controllers/authController.js";
+} from "./authController.js";
 
 // ----------------------
 // Setup in-memory MongoDB

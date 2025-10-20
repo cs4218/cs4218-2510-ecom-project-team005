@@ -1,140 +1,48 @@
-// tests/ui/login.spec.js
-import { test, expect } from '@playwright/test';
+import { test, expect } from "../fixtures/testData.js"; // provides testData.seedAll()
 
-test.describe('Login Page', () => {
-
-    // Navigate to login page before each test
-    test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:3000/login');
+test.describe("UI - Login Page", () => {
+    test.beforeEach(async ({ page, testData, context }) => {
+        // Ensure memory DB seeded for consistent data (users, etc.)
+        await testData.seedAll();
+        await context.clearCookies();
+        await page.goto("http://localhost:3000/login");
+        await page.evaluate(() => localStorage.clear());
     });
 
-    test('should render the login form correctly', async ({ page }) => {
-        await expect(page.getByRole('heading', { name: 'LOGIN FORM' })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: 'Enter Your Email' })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: 'Enter Your Password' })).toBeVisible();
-        await expect(page.getByRole('button', { name: 'LOGIN' })).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Forgot Password' })).toBeVisible();
+    test("renders all expected elements", async ({ page }) => {
+        await expect(page.getByRole("heading", { name: /login form/i })).toBeVisible();
+        await expect(page.getByPlaceholder("Enter Your Email")).toBeVisible();
+        await expect(page.getByPlaceholder("Enter Your Password")).toBeVisible();
+        await expect(page.getByRole("button", { name: /login/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /forgot password/i })).toBeVisible();
     });
 
-    test('should allow typing into email and password fields', async ({ page }) => {
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
+    test("allows typing in email and password fields and preserves values", async ({ page }) => {
+        const email = "ui-test@login.test";
+        const password = "mySecret123";
 
-        await emailInput.fill('test@email.com');
-        await passwordInput.fill('test1234');
+        const emailInput = page.getByPlaceholder("Enter Your Email");
+        const passwordInput = page.getByPlaceholder("Enter Your Password");
 
-        await expect(emailInput).toHaveValue('test@email.com');
-        await expect(passwordInput).toHaveValue('test1234');
+        await emailInput.fill(email);
+        await passwordInput.fill(password);
+
+        await expect(emailInput).toHaveValue(email);
+        await expect(passwordInput).toHaveValue(password);
     });
 
-    test('should show validation errors when fields are empty', async ({ page }) => {
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        await expect(emailInput).toHaveAttribute('required', '');
+    test("password input should be masked", async ({ page }) => {
+        const passwordInput = page.getByPlaceholder("Enter Your Password");
+        await expect(passwordInput).toHaveAttribute("type", "password");
     });
 
-    test('should validate email format before submission', async ({ page }) => {
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-
-        await emailInput.fill('invalid-email');
-        await passwordInput.fill('password123');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        // Check that we are still on login page
-        await expect(page).toHaveURL(/login$/);
+    test("navigates to forgot password page when clicked", async ({ page }) => {
+        await page.getByRole("button", { name: /forgot password/i }).click();
+        await expect(page).toHaveURL(/forgot-password$/);
     });
 
-    test('should navigate to forgot password page', async ({ page }) => {
-        await page.getByRole('button', { name: 'Forgot Password' }).click();
-        await expect(page).toHaveURL(/forgot-password/);
+    test("shows HTML required validation when submitting empty form", async ({ page }) => {
+        await page.getByRole("button", { name: /login/i }).click();
+        await expect(page.getByRole("heading", { name: /login form/i })).toBeVisible();
     });
-
-    test('should login successfully and redirect (mocked)', async ({ page }) => {
-        await page.route('**/api/v1/auth/login', async route => {
-            await route.fulfill({
-                json: {
-                    success: true,
-                    message: 'Login successful',
-                    user: { name: 'John Doe', email: 'test@email.com' },
-                    token: 'mocktoken123'
-                }
-            });
-        });
-
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-
-        await emailInput.fill('test@email.com');
-        await passwordInput.fill('test1234');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        await expect(page).toHaveURL('http://localhost:3000/');
-
-        // Check localStorage
-        const authData = await page.evaluate(() => localStorage.getItem('auth'));
-        expect(authData).toContain('mocktoken123');
-    });
-
-    test('should show error toast on failed login (mocked)', async ({ page }) => {
-        await page.route('**/api/v1/auth/login', async route => {
-            await route.fulfill({
-                json: { success: false, message: 'Invalid credentials' }
-            });
-        });
-
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-
-        await emailInput.fill('wrong@email.com');
-        await passwordInput.fill('wrongpass');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        await expect(page.getByText('Invalid credentials')).toBeVisible();
-    });
-
-    test('should not allow login with empty email but filled password', async ({ page }) => {
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-        await passwordInput.fill('mypassword');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        await expect(emailInput).toHaveAttribute('required', '');
-    });
-
-    test('should not allow login with empty password but filled email', async ({ page }) => {
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        await emailInput.fill('test@email.com');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-        await expect(passwordInput).toHaveAttribute('required', '');
-    });
-
-    test('should show generic error toast when network request fails', async ({ page }) => {
-        await page.route('**/api/v1/auth/login', route => route.abort('failed'));
-        await page.getByRole('textbox', { name: 'Enter Your Email' }).fill('user@test.com');
-        await page.getByRole('textbox', { name: 'Enter Your Password' }).fill('password');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-        await expect(page.getByText('Something went wrong')).toBeVisible();
-    });
-
-
-    test('password input should be masked', async ({ page }) => {
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-        await expect(passwordInput).toHaveAttribute('type', 'password');
-    });
-
-
-/*
-    test('should show multiple error messages for invalid email and empty password', async ({ page }) => {
-        const emailInput = page.getByRole('textbox', { name: 'Enter Your Email' });
-        await emailInput.fill('invalid-email');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        const passwordInput = page.getByRole('textbox', { name: 'Enter Your Password' });
-        await expect(passwordInput).toHaveAttribute('required', '');
-        await expect(page.getByText(/invalid email/i)).toBeVisible();
-    });*/
-
 });

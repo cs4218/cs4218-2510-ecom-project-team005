@@ -28,7 +28,7 @@ process.env.JWT_SECRET = "testsecret";
     return { __esModule: true, default: mockUserModel };
 });*/
 
-await jest.unstable_mockModule("../../models/userModel.js", () => {
+await jest.unstable_mockModule("../models/userModel.js", () => {
     const mockUserModel = jest.fn().mockImplementation((data) => ({
         save: jest.fn().mockResolvedValue({ ...data, _id: "user123" })
     }));
@@ -41,7 +41,7 @@ await jest.unstable_mockModule("../../models/userModel.js", () => {
 });
 
 // Real helpers (we want actual hashing/comparison)
-import { hashPassword, comparePassword } from "../../helpers/authHelper.js";
+import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 
 // Mock JWT
 await jest.unstable_mockModule("jsonwebtoken", () => ({
@@ -51,9 +51,9 @@ await jest.unstable_mockModule("jsonwebtoken", () => ({
 
 // ------------------ IMPORT AFTER MOCKS ------------------------------
 const { registerController, loginController, forgotPasswordController } =
-    await import("../../controllers/authController.js");
+    await import("./authController.js");
 
-const userModel = (await import("../../models/userModel.js")).default;
+const userModel = (await import("../models/userModel.js")).default;
 const JWT = (await import("jsonwebtoken")).default;
 
 // ------------------ TEST SUITE --------------------------------------

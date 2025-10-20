@@ -1,4 +1,4 @@
-import { hashPassword, comparePassword } from "../../helpers/authHelper.js";
+import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 
 
 describe("Auth Helpers Integration Tests", () => {
