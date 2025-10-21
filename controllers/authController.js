@@ -89,12 +89,14 @@ export const loginController = async (req, res) => {
       });
     }
     //token
-    const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-    res.status(200).send({
+   //old  const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+   //   expiresIn: "7d",
+   // });
+      const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+      res.status(200).send({
       success: true,
-      message: "login successfully",
+      message: "login successful", // type again
       user: {
         _id: user._id,
         name: user.name,
@@ -162,8 +164,10 @@ export const forgotPasswordController = async (req, res) => {
       });
     }
     const hashed = await hashPassword(newPassword);
-    await userModel.findByIdAndUpdate(user._id, { password: hashed }); // maybe add , {new: true}
-    res.status(200).send({
+    // old: await userModel.findByIdAndUpdate(user._id, { password: hashed }); // maybe add , {new: true}
+      await userModel.findByIdAndUpdate(user._id, { password: hashed }, { new: true });
+
+      res.status(200).send({
       success: true,
       message: "Password Reset Successfully",
     });

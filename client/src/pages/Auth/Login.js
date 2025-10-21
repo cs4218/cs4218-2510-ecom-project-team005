@@ -17,37 +17,40 @@ const Login = () => {
   
 
   // form function
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/api/v1/auth/login", {
-        email,
-        password,
-      });
-      if (res && res.data.success) {
-        toast.success(res.data && res.data.message, {
-            duration: 5000,
-            icon: "🙏",
-            style: {
-              background: "green",
-              color: "white",
-            },
-          });
-        setAuth({
-            ...auth,
-            user: res.data.user,
-            token: res.data.token,
-        });
-        localStorage.setItem("auth", JSON.stringify(res.data));
-        navigate(location.state || "/");
-      } else {
-        toast.error(res.data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post("/api/v1/auth/login", {
+                email: email.trim(),
+                password: password.trim(),
+            });
+
+            if (res && res.data.success) {
+                toast.success(res.data.message, {
+                    duration: 5000,
+                    icon: "🙏",
+                    style: { background: "green", color: "white" },
+                });
+                setAuth({
+                    ...auth,
+                    user: res.data.user,
+                    token: res.data.token,
+                });
+                localStorage.setItem("auth", JSON.stringify(res.data));
+                navigate(location.state || "/");
+            } else {
+                toast.error(res.data.message);
+            }
+        } catch (error) { //handles status code 400 and 401 as an error, so previously it would always have send the "Something went wrong" message and not the actual one
+
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Something went wrong");
+            }
+        }
+    };
+
   return (
     <Layout title="Login - Ecommerce App">
       <div className="form-container " style={{ minHeight: "90vh" }}>

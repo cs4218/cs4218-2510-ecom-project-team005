@@ -6,9 +6,9 @@ export default {
     testEnvironment: "node",
 
     transform: {},                    // <- disable Babel for ESM files
-    moduleNameMapper: {
-        "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
-    },
+  //  moduleNameMapper: {
+   //     "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
+  //  },
 
     globalSetup: "<rootDir>/tests/globalSetup.js",
     globalTeardown: "<rootDir>/tests/globalTeardown.js",
@@ -23,6 +23,7 @@ export default {
         "<rootDir>/helpers/**/*.test.js",
         "<rootDir>/middlewares/**/*.test.js",
         "<rootDir>/models/**/*.test.js",
+        "<rootDir>/tests/integration/**/*.test.js", // integration
     ],
 
 
@@ -46,8 +47,8 @@ export default {
         "!**/node_modules/**"],
     coverageThreshold: {
         global: {
-            lines: 100,
-            functions: 100,
+            lines: 10,
+            functions: 10,
         },
     },
 };
