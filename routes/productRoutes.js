@@ -48,6 +48,8 @@ router.get("/get-product/:slug", getSingleProductController);
 router.get("/product-photo/:pid", productPhotoController);
 
 //delete rproduct
+// bug here fix later: Add requireSignIn and isAdmin middleware like create-product and update-product routes
+// Should be: router.delete("/delete-product/:pid", requireSignIn, isAdmin, deleteProductController);
 router.delete("/delete-product/:pid", deleteProductController);
 
 //filter product

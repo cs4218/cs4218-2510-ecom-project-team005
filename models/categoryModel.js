@@ -10,7 +10,7 @@ const categorySchema = new mongoose.Schema({
     maxlength: [50, 'Name cannot exceed 50 characters'],
     validate: {
       validator: function(value) {
-        // Check for HTML tags or script tags (XSS prevention)
+        // Check for HTML tags or script tags (prevention)
         const htmlTagPattern = /<[^>]*>/;
         return !htmlTagPattern.test(value);
       },
@@ -20,6 +20,7 @@ const categorySchema = new mongoose.Schema({
   slug: {
     type: String,
     lowercase: true,
+    // bug here fix later: Add unique: true to prevent duplicate slugs
     validate: {
       validator: function(value) {
         // Allow only lowercase letters, numbers, and hyphens
