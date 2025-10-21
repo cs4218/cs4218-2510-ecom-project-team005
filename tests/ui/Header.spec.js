@@ -1,3 +1,4 @@
+// HOU QINGSHAN UI test for header
 import { test, expect } from '@playwright/test';
 
 const MOCK_CATEGORIES = [
@@ -21,7 +22,7 @@ test.describe('Header (anonymous user)', () => {
   test('renders header, brand, search, categories, auth links, and cart', async ({ page }) => {
     await page.goto('/');
 
-    // Brand link (uses text "Virtual Vault" with emoji)
+    // Brand link
     await expect(page.getByRole('link', { name: /virtual vault/i })).toBeVisible();
 
     // Search input + button (from <SearchInput/>)
@@ -42,7 +43,6 @@ test.describe('Header (anonymous user)', () => {
     await page.getByPlaceholder(/search/i).fill('nov');
     await page.getByRole('button', { name: /search/i }).click();
 
-    // Adjust this assertion to your SearchInput’s actual navigation behavior.
     // Many implementations route to /search with a query or state.
     await expect(page).toHaveURL(/\/search/i);
   });
