@@ -21,7 +21,7 @@ test.describe('Header (anonymous user)', () => {
   test('renders header, brand, search, categories, auth links, and cart', async ({ page }) => {
     await page.goto('/');
 
-    // Brand link (uses text "Virtual Vault" with emoji)
+    // Brand link
     await expect(page.getByRole('link', { name: /virtual vault/i })).toBeVisible();
 
     // Search input + button (from <SearchInput/>)

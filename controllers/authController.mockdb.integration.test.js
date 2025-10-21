@@ -8,25 +8,6 @@ import { jest } from "@jest/globals";
 
 process.env.JWT_SECRET = "testsecret";
 
-// Mock userModel for both `new userModel()` and static methods
-/*await jest.unstable_mockModule("../../models/userModel.js", () => {
-    const mockUserModel = jest.fn().mockImplementation(() => ({
-        save: jest.fn().mockResolvedValue({
-            _id: "user123",
-            name: "Alice",
-            email: "alice@example.com",
-            phone: "1234567890",
-            address: "123 Street",
-            answer: "Blue",
-        }),
-    }));
-
-    mockUserModel.findOne = jest.fn();
-    mockUserModel.findById = jest.fn();
-    mockUserModel.findByIdAndUpdate = jest.fn();
-
-    return { __esModule: true, default: mockUserModel };
-});*/
 
 await jest.unstable_mockModule("../models/userModel.js", () => {
     const mockUserModel = jest.fn().mockImplementation((data) => ({
@@ -199,7 +180,11 @@ describe("Auth Controllers Integration Tests (helpers real, DB mocked)", () => {
             );
         });
 
-
+        test("comparePassword returns false for wrong password", async () => {
+            const hashed = await hashPassword("password123");
+            const result = await comparePassword("wrongpassword", hashed);
+            expect(result).toBe(false);
+        });
 
 
     });
@@ -270,6 +255,8 @@ describe("Auth Controllers Integration Tests (helpers real, DB mocked)", () => {
                 })
             );
         });
+
+
 
     });
 });

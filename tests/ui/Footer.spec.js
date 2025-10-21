@@ -23,7 +23,7 @@ test.describe('Footer', () => {
       await expect(footer.getByRole('link', { name })).toBeVisible();
     }
 
-    // Optional: exactly 3 links in the footer
+    // exactly 3 links in the footer
     await expect(footer.getByRole('link')).toHaveCount(3);
   });
 
@@ -35,7 +35,7 @@ test.describe('Footer', () => {
       const link = footer.getByRole('link', { name });
       await expect(link).toBeVisible();
 
-      // If links open in same tab (typical SPA):
+      // If links open in same tab:
       await link.click();
 
       // Assert URL changed to expected route
