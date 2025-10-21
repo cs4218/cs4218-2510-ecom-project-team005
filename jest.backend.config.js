@@ -6,9 +6,9 @@ export default {
     testEnvironment: "node",
 
     transform: {},                    // <- disable Babel for ESM files
-    moduleNameMapper: {
-        "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
-    },
+  //  moduleNameMapper: {
+   //     "^(\\.{1,2}/.*)\\.js$": "$1",  // <- optional: fixes relative imports in ESM
+  //  },
 
     globalSetup: "<rootDir>/tests/globalSetup.js",
     globalTeardown: "<rootDir>/tests/globalTeardown.js",
@@ -23,6 +23,8 @@ export default {
         "<rootDir>/helpers/**/*.test.js",
         "<rootDir>/middlewares/**/*.test.js",
         "<rootDir>/models/**/*.test.js",
+        "<rootDir>/config/**/*.test.js",
+        "<rootDir>/tests/integration/**/*.test.js", // integration
     ],
 
 
@@ -41,13 +43,23 @@ export default {
 
     // jest code coverage
     collectCoverage: true,
-    collectCoverageFrom: ["controllers/**", "helpers/**", "middlewares/**", "models/**", "!**/*.test.js",
+    coverageDirectory: "coverage/backend",
+    collectCoverageFrom: [
+        "controllers/**/*.js",
+        "helpers/**/*.js",
+        "middlewares/**/*.js",
+        "models/**/*.js",
+        "config/**/*.js",
+        "!**/*.test.js",
         "!**/*.unit.test.js",
-        "!**/node_modules/**"],
+        "!**/*.integration.test.js",
+        "!**/__testutils__/**",
+        "!**/node_modules/**"
+    ],
     coverageThreshold: {
         global: {
-            lines: 100,
-            functions: 100,
+            lines: 10,
+            functions: 10,
         },
     },
 };

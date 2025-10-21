@@ -18,7 +18,8 @@
     "ui:codegen": "playwright codegen http://localhost:3000",
     "coverage:backend": "cross-env SKIP_DB_CONNECTION=true SKIP_SERVER_START=true node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --runInBand",
     "coverage:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage --runInBand",
-    "coverage:all": "npm run coverage:backend && npm run coverage:frontend"
+    "coverage:merge": "mkdir -p coverage && cat coverage/backend/lcov.info coverage/frontend/lcov.info > coverage/lcov.info",
+    "coverage:all": "npm run coverage:backend && npm run coverage:frontend && npm run coverage:merge"
   },
   "keywords": [],
   "author": "RP",

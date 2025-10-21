@@ -535,7 +535,7 @@ describe('Auth controllers tests', () => {
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 "fakeid123",
                 { password: "hashedNewPassword" },
-               // { new: true }
+                { new: true } //added in MS2
             );
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(
