@@ -5,8 +5,8 @@ import { useAuth } from "../../context/auth";
 
 /* XSS Prevention Function */
 const sanitizeUserInput = (input) => {
-  // BUG: Should return '' for non-strings to prevent React crash - fix later
-  if (!input || typeof input !== 'string') return input;
+  // Return empty string for non-string values to prevent React crash
+  if (!input || typeof input !== 'string') return '';
   return input.replace(/<[^>]*>/g, '').trim();
 };
 
