@@ -28,7 +28,7 @@ We splitted workload according to the recommended scope for a five persion team 
 | Name | List of files by person, integration testing |
 | :--- | :--- |
 | **Jakob** | category-browsing.test.js, checkout-flow.test.js, product-details.test.js |
-| **Jimmy** | About.spec.js, Footer.spec.js, Header.spec.js, Policy.spec.js |
+| **Jimmy** | admin-category-crud.spec.js, About.spec.js, Footer.spec.js, Header.spec.js, Policy.spec.js |
 | **Ridwan** | |
 | **Arda** | |
 | **Adnan** | |
