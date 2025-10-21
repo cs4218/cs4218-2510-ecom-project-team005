@@ -152,19 +152,8 @@ export const productPhotoController = async (req, res) => {
 
 // delete controller
 export const deleteProductController = async (req, res) => {
-  
-  try {
-    /* Admin Authorization Check */
-    /* Only admins should be able to delete products */
-    /* BEFORE: Any logged-in user could delete all products */
-    /* AFTER: Only users with admin role can proceed with deletion */
-    if (!req.user || req.user.role !== 'admin') {
-      return res.status(403).send({
-        success: false,
-        message: "Admin access required",
-      });
-    }
 
+  try {
     /* ObjectId Format Check */
     /* Invalid IDs crash the database query */
     /* BEFORE: Server returns 500 error for malformed IDs */

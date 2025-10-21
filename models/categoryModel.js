@@ -20,7 +20,7 @@ const categorySchema = new mongoose.Schema({
   slug: {
     type: String,
     lowercase: true,
-    // bug here fix later: Add unique: true to prevent duplicate slugs
+    unique: true,
     validate: {
       validator: function(value) {
         // Allow only lowercase letters, numbers, and hyphens

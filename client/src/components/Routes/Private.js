@@ -22,8 +22,12 @@ export default function PrivateRoute(){
                     setOk(false);
                 }
             } catch (error) {
-                console.log("Network error during auth check:", error);
-                setOk(false); // Deny access on network error
+                // 401 error is expected when not authenticated - silently deny access
+                // Only log unexpected errors (not 401/403)
+                if (error.response?.status !== 401 && error.response?.status !== 403) {
+                    console.error("Unexpected error during auth check:", error);
+                }
+                setOk(false); // Deny access on error
             }
         };
         if (auth?.token) authCheck();

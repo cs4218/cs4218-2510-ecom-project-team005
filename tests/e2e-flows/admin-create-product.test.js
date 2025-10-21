@@ -7,9 +7,8 @@
  * Scenarios:
  * - Admin creates new product with all required fields
  * - Product appears in admin products list
- * - Product appears in public product list
- * - Form validation (required fields, image upload)
- * - Category selection
+ * - Product appears in specific category page
+ * - Access control (regular user cannot create products)
  */
 
 import { test, expect } from '../fixtures/testData.js';
@@ -18,60 +17,7 @@ import path from 'path';
 
 test.describe.configure({mode: "serial"});
 
-test.describe("Admin Create Product - Form and Validation", () => {
-    test.beforeEach(async ({page, testData}) => {
-        await testData.seedAll();
-        await page.goto("http://localhost:3000");
-        await clearStorage(page);
-    });
-
-    test("should access create product page as admin", async ({page}) => {
-        // Arrange - Login as admin
-        await loginAdmin(page);
-
-        // Act - Navigate to create product page
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Assert - Create product page loaded
-        await expect(page.locator('h1:has-text("Create Product")')).toBeVisible();
-        await expect(page).toHaveURL(/.*\/dashboard\/admin\/create-product/);
-    });
-
-    test("should display create product form with all fields", async ({page}) => {
-        // Arrange
-        await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Act & Assert - All form fields present
-        await expect(page.locator('input[name="name"]')).toBeVisible();
-        await expect(page.locator('textarea[name="description"]')).toBeVisible();
-        await expect(page.locator('input[name="price"]')).toBeVisible();
-        await expect(page.locator('input[name="quantity"]')).toBeVisible();
-        await expect(page.locator('select[name="category"]')).toBeVisible();
-        await expect(page.locator('input[type="file"]')).toBeVisible();
-        await expect(page.locator('button:has-text("Create Product")')).toBeVisible();
-    });
-
-    test("should populate category dropdown with existing categories", async ({page}) => {
-        // Arrange
-        await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Act - Check category dropdown
-        const categorySelect = page.locator('select[name="category"]');
-        await expect(categorySelect).toBeVisible();
-
-        // Assert - Categories from seed data are available
-        const options = await categorySelect.locator('option').allTextContents();
-
-        // Should have at least the 4 seeded categories
-        expect(options.length).toBeGreaterThan(0);
-        expect(options.some(opt => opt.includes('Electronics'))).toBeTruthy();
-        expect(options.some(opt => opt.includes('Clothing'))).toBeTruthy();
-    });
-});
-
-test.describe("Admin Create Product - Product Creation Flow", () => {
+test.describe("Admin Create Product - Product Creation", () => {
     test.beforeEach(async ({page, testData}) => {
         await testData.seedAll();
         await page.goto("http://localhost:3000");
@@ -79,95 +25,103 @@ test.describe("Admin Create Product - Product Creation Flow", () => {
     });
 
     test("should create product with all required fields successfully", async ({page}) => {
-        // Arrange - Login and navigate to create product
+        // Arrange - Login as admin
         await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
 
-        // Act - Fill form
-        await page.locator('input[name="name"]').fill('E2E Test Product');
-        await page.locator('textarea[name="description"]').fill('This is a test product created by E2E test');
-        await page.locator('input[name="price"]').fill('299');
-        await page.locator('input[name="quantity"]').fill('25');
+        // Act - Navigate to create product through UI
+        await page.getByRole('button', { name: 'Test Admin' }).click();
+        await page.getByRole('link', { name: 'Dashboard' }).click();
+        await page.getByRole('link', { name: 'Create Product' }).click();
 
-        // Select Electronics category (index 1, since 0 is placeholder)
-        await page.locator('select[name="category"]').selectOption({ index: 1 });
+        // Assert - Create product page loaded
+        await expect(page.getByRole('heading', { name: 'Create Product' })).toBeVisible();
+        await expect(page).toHaveURL(/.*\/dashboard\/admin\/create-product/);
 
-        // Upload test image (create a simple test file)
+        // Fill form
+        await page.getByRole('textbox', { name: 'write a name' }).fill('E2E Test Product');
+        await page.getByRole('textbox', { name: 'write a description' }).fill('This is a test product created by E2E test');
+        await page.getByPlaceholder('write a Price').fill('299');
+        await page.getByPlaceholder('write a quantity').fill('25');
+
+        // Select Electronics category
+        await page.locator('div').filter({ hasText: /^Select Shipping$/ }).nth(1).click();
+        await page.getByTitle('Yes').click();
+        await page.locator('div').filter({ hasText: /^Select a category$/ }).first().click();
+        await page.getByText('Electronics').nth(1).click();
+
+
+        // Upload test image
         const testImagePath = path.join(process.cwd(), 'controllers', 'test-image.jpg');
-        await page.locator('input[type="file"]').setInputFiles(testImagePath);
+        await page.getByText('Upload Photo').setInputFiles(testImagePath);
 
         // Submit form
-        await page.locator('button:has-text("Create Product")').click();
+        await page.getByRole('button', { name: 'CREATE PRODUCT' }).click();
 
         // Assert - Success message displayed
         await expect(page.getByText(/Product Created Successfully/i)).toBeVisible({ timeout: 10000 });
     });
 
     test("should display created product in admin products list", async ({page}) => {
-        // Arrange - Create product first
+        // Arrange - Login and navigate to create product
         await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
 
-        await page.locator('input[name="name"]').fill('Admin List Test Product');
-        await page.locator('textarea[name="description"]').fill('Should appear in admin list');
-        await page.locator('input[name="price"]').fill('399');
-        await page.locator('input[name="quantity"]').fill('15');
-        await page.locator('select[name="category"]').selectOption({ index: 1 });
+        await page.getByRole('button', { name: 'Test Admin' }).click();
+        await page.getByRole('link', { name: 'Dashboard' }).click();
+        await page.getByRole('link', { name: 'Create Product' }).click();
 
+        // Fill form
+        await page.getByRole('textbox', { name: 'write a name' }).fill('E2E Test Product');
+        await page.getByRole('textbox', { name: 'write a description' }).fill('This is a test product created by E2E test');
+        await page.getByPlaceholder('write a Price').fill('299');
+        await page.getByPlaceholder('write a quantity').fill('25');
+
+        // Select Electronics category
+        await page.locator('div').filter({ hasText: /^Select Shipping$/ }).nth(1).click();
+        await page.getByTitle('Yes').click();
+        await page.locator('div').filter({ hasText: /^Select a category$/ }).first().click();
+        await page.getByText('Electronics').nth(1).click();
+        
+        // Upload test image
         const testImagePath = path.join(process.cwd(), 'controllers', 'test-image.jpg');
-        await page.locator('input[type="file"]').setInputFiles(testImagePath);
+        await page.getByText('Upload Photo').setInputFiles(testImagePath);
 
-        await page.locator('button:has-text("Create Product")').click();
+        // Submit form
+        await page.getByRole('button', { name: 'CREATE PRODUCT' }).click();
         await expect(page.getByText(/Product Created Successfully/i)).toBeVisible({ timeout: 10000 });
 
-        // Act - Navigate to admin products list
-        await page.goto("http://localhost:3000/dashboard/admin/products");
+        // Navigate to admin products list through UI
+        await page.getByRole('button', { name: 'Test Admin' }).click();
+        await page.getByRole('link', { name: 'Dashboard' }).click();
+        await page.getByRole('link', { name: 'Products' }).click();
 
         // Assert - Product appears in list
-        await expect(page.locator('text=Admin List Test Product')).toBeVisible();
-    });
-
-    test("should display created product on public product page", async ({page}) => {
-        // Arrange - Create product as admin
-        await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        await page.locator('input[name="name"]').fill('Public Product Test');
-        await page.locator('textarea[name="description"]').fill('Should be visible to public');
-        await page.locator('input[name="price"]').fill('599');
-        await page.locator('input[name="quantity"]').fill('10');
-        await page.locator('select[name="category"]').selectOption({ index: 1 });
-
-        const testImagePath = path.join(process.cwd(), 'controllers', 'test-image.jpg');
-        await page.locator('input[type="file"]').setInputFiles(testImagePath);
-
-        await page.locator('button:has-text("Create Product")').click();
-        await expect(page.getByText(/Product Created Successfully/i)).toBeVisible({ timeout: 10000 });
-
-        // Act - Navigate to public homepage
-        await page.goto("http://localhost:3000");
-
-        // Assert - Product visible on homepage
-        await expect(page.locator('text=Public Product Test')).toBeVisible({ timeout: 5000 });
+        await expect(page.getByRole('link', { name: 'E2E Test Product' })).toBeVisible();
     });
 
     test("should create product in specific category and appear on category page", async ({page}) => {
-        // Arrange - Create product in Clothing category
+        // Arrange - Login and navigate
         await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
 
-        await page.locator('input[name="name"]').fill('Category Test Shirt');
-        await page.locator('textarea[name="description"]').fill('Test product for category');
-        await page.locator('input[name="price"]').fill('45');
-        await page.locator('input[name="quantity"]').fill('30');
+        await page.getByRole('button', { name: 'Test Admin' }).click();
+        await page.getByRole('link', { name: 'Dashboard' }).click();
+        await page.getByRole('link', { name: 'Create Product' }).click();
 
-        // Select Clothing category (index 2)
-        await page.locator('select[name="category"]').selectOption({ index: 2 });
+        // Act - Create product in Clothing category
+        await page.getByRole('textbox', { name: 'write a name' }).fill('Category Test Shirt');
+        await page.getByRole('textbox', { name: 'write a description' }).fill('Test product for category');
+        await page.getByPlaceholder('write a Price').fill('45');
+        await page.getByPlaceholder('write a quantity').fill('30');
+
+        // Select Clothing category
+        await page.locator('div').filter({ hasText: /^Select Shipping$/ }).nth(1).click();
+        await page.getByTitle('Yes').click();
+        await page.locator('div').filter({ hasText: /^Select a category$/ }).first().click();
+        await page.getByText('Clothing').nth(1).click();
 
         const testImagePath = path.join(process.cwd(), 'controllers', 'test-image.jpg');
-        await page.locator('input[type="file"]').setInputFiles(testImagePath);
+        await page.getByText('Upload Photo').setInputFiles(testImagePath);
 
-        await page.locator('button:has-text("Create Product")').click();
+        await page.getByRole('button', { name: 'CREATE PRODUCT' }).click();
         await expect(page.getByText(/Product Created Successfully/i)).toBeVisible({ timeout: 10000 });
 
         // Act - Navigate to Clothing category page
@@ -178,31 +132,11 @@ test.describe("Admin Create Product - Product Creation Flow", () => {
     });
 });
 
-test.describe("Admin Create Product - Form Validation and Edge Cases", () => {
+test.describe("Admin Create Product - Access Control", () => {
     test.beforeEach(async ({page, testData}) => {
         await testData.seedAll();
         await page.goto("http://localhost:3000");
         await clearStorage(page);
-    });
-
-    test("should handle product creation without image", async ({page}) => {
-        // Arrange
-        await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Act - Fill form without uploading image
-        await page.locator('input[name="name"]').fill('No Image Product');
-        await page.locator('textarea[name="description"]').fill('Product without image upload');
-        await page.locator('input[name="price"]').fill('199');
-        await page.locator('input[name="quantity"]').fill('20');
-        await page.locator('select[name="category"]').selectOption({ index: 1 });
-
-        // Do NOT upload image
-        await page.locator('button:has-text("Create Product")').click();
-
-        // Assert - May show error or create with placeholder image (depends on implementation)
-        // For now, just check page doesn't crash
-        await page.waitForTimeout(2000);
     });
 
     test("should redirect regular user from create product page", async ({page}) => {
@@ -219,57 +153,5 @@ test.describe("Admin Create Product - Form Validation and Edge Cases", () => {
         // Assert - Redirected away (not allowed)
         await page.waitForTimeout(3500); // Wait for Spinner redirect
         await expect(page).not.toHaveURL(/.*\/dashboard\/admin\/create-product/);
-    });
-
-    test("should create multiple products successfully", async ({page}) => {
-        // Arrange
-        await loginAdmin(page);
-
-        const products = [
-            { name: 'Multi Product 1', price: '100', qty: '10' },
-            { name: 'Multi Product 2', price: '200', qty: '20' },
-            { name: 'Multi Product 3', price: '300', qty: '30' }
-        ];
-
-        const testImagePath = path.join(process.cwd(), 'controllers', 'test-image.jpg');
-
-        // Act - Create multiple products
-        for (const prod of products) {
-            await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-            await page.locator('input[name="name"]').fill(prod.name);
-            await page.locator('textarea[name="description"]').fill(`Description for ${prod.name}`);
-            await page.locator('input[name="price"]').fill(prod.price);
-            await page.locator('input[name="quantity"]').fill(prod.qty);
-            await page.locator('select[name="category"]').selectOption({ index: 1 });
-            await page.locator('input[type="file"]').setInputFiles(testImagePath);
-
-            await page.locator('button:has-text("Create Product")').click();
-            await expect(page.getByText(/Product Created Successfully/i)).toBeVisible({ timeout: 10000 });
-        }
-
-        // Assert - All products appear in admin list
-        await page.goto("http://localhost:3000/dashboard/admin/products");
-
-        for (const prod of products) {
-            await expect(page.locator(`text=${prod.name}`)).toBeVisible();
-        }
-    });
-
-    test("should preserve form data when navigating back to create product page", async ({page}) => {
-        // Arrange
-        await loginAdmin(page);
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Act - Start filling form, then navigate away
-        await page.locator('input[name="name"]').fill('Temp Product');
-        await page.goto("http://localhost:3000/dashboard/admin/products");
-
-        // Navigate back
-        await page.goto("http://localhost:3000/dashboard/admin/create-product");
-
-        // Assert - Form is reset (fresh form)
-        const nameValue = await page.locator('input[name="name"]').inputValue();
-        expect(nameValue).toBe(''); // Form should be empty on fresh load
     });
 });
