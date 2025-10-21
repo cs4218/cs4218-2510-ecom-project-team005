@@ -18,8 +18,8 @@ We splitted workload according to the recommended scope for a five persion team 
 ### Integration testing scope
 | Name | List of files by person, integration testing |
 | :--- | :--- |
-| **Jakob** | productController.integration.test.ss (productController.js), brainTreeController.integration.test.js (productController.js)|
-| **Jimmy** | |
+| **Jakob** | productController.integration.test.js (productController.js), brainTreeController.integration.test.js (productController.js)|
+| **Jimmy** | admin-category-crud.spec.js |
 | **Ridwan** | |
 | **Arda** | |
 | **Adnan** | |
@@ -28,7 +28,7 @@ We splitted workload according to the recommended scope for a five persion team 
 | Name | List of files by person, integration testing |
 | :--- | :--- |
 | **Jakob** | category-browsing.test.js, checkout-flow.test.js, product-details.test.js |
-| **Jimmy** | |
+| **Jimmy** | About.spec.js, Footer.spec.js, Header.spec.js, Policy.spec.js |
 | **Ridwan** | |
 | **Arda** | |
 | **Adnan** | |
