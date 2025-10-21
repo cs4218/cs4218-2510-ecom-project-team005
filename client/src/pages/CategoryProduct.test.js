@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import CategoryProduct from "./CategoryProduct"
@@ -49,8 +49,8 @@ describe("CategoryProduct", () => {
     const renderComponent = () => render(<CategoryProduct />);
     const setupInitialSuccess = ({ products = [productResponse], total = countResponse.total } = {}) => {
         axios.get
-            .mockResolvedValueOnce({ data: { products, category } })
-            .mockResolvedValueOnce({ data: { ...countResponse, total } });
+            .mockResolvedValueOnce({ data: { ...countResponse, total } })
+            .mockResolvedValueOnce({ data: { products, category } });
     };
 
     beforeEach(() => {
@@ -74,8 +74,8 @@ describe("CategoryProduct", () => {
                 expect(screen.getByTestId("category-title")).toHaveTextContent(category.name)
             );
             expect(screen.getByText(/result found/i)).toHaveTextContent(`${countResponse.total} result found`);
-            expect(axios.get).toHaveBeenNthCalledWith(1, `/api/v1/product/product-category/${slug}/1`);
-            expect(axios.get).toHaveBeenNthCalledWith(2, `/api/v1/product/product-category-count/${slug}`);
+            expect(axios.get).toHaveBeenNthCalledWith(1, `/api/v1/product/product-category-count/${slug}`);
+            expect(axios.get).toHaveBeenNthCalledWith(2, `/api/v1/product/product-category/${slug}/1`);
         });
 
         it("More details button should open details page", async () => {
@@ -119,8 +119,8 @@ describe("CategoryProduct", () => {
             // Arrange
             const error = new Error("Failed to fetch total");
             const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-            axios.get.mockResolvedValueOnce({ data: { products: [productResponse], category } });
             axios.get.mockRejectedValueOnce(error);
+            axios.get.mockResolvedValueOnce({ data: { products: [productResponse], category } });
 
             // Act
             renderComponent();
@@ -136,8 +136,8 @@ describe("CategoryProduct", () => {
             // Arrange
             const error = new Error("Failed to fetch products");
             const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-            axios.get.mockRejectedValueOnce(error);
             axios.get.mockResolvedValueOnce({ data: countResponse });
+            axios.get.mockRejectedValueOnce(error);
 
             // Act
             renderComponent();
@@ -204,9 +204,7 @@ describe("CategoryProduct", () => {
                 // Act
                 renderComponent();
                 await screen.findByText(productResponse.name);
-                await act(async () => {
-                    await userEvent.click(screen.getByRole("button", { name: /loadmore/i }));
-                });
+                await userEvent.click(screen.getByRole("button", { name: /loadmore/i }));
 
                 // Assert
                 await waitFor(() => {

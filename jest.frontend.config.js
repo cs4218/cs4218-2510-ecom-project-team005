@@ -19,8 +19,6 @@ export default {
     // ignore all node_modules except styleMock (needed for css imports)
     testPathIgnorePatterns: [
         "<rootDir>/node_modules/",
-        "<rootDir>/client/src/pages/user/Orders.test.js",
-        "<rootDir>/client/src/pages/user/Profile.test.js"
     ],
 
     // only run these tests
@@ -28,11 +26,16 @@ export default {
 
     // jest code coverage
     collectCoverage: true,
+    coverageDirectory: "coverage/frontend",
     collectCoverageFrom: [
         "client/src/**/*.{js,jsx}",
         "!client/src/**/*.test.js",
+        "!client/src/**/*.test.jsx",
+        "!client/src/__tests__/**",
+        "!client/src/setupTests.js",
         "!client/src/index.js",
-        "!client/src/_site/**"
+        "!client/src/_site/**",
+        "!client/src/reportWebVitals.js"
     ],
     coverageThreshold: {
         global: {

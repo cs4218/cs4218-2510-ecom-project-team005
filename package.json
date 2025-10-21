@@ -18,7 +18,8 @@
     "ui:codegen": "playwright codegen http://localhost:3000",
     "coverage:backend": "cross-env SKIP_DB_CONNECTION=true SKIP_SERVER_START=true node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --runInBand",
     "coverage:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage --runInBand",
-    "coverage:all": "npm run coverage:backend && npm run coverage:frontend"
+    "coverage:merge": "mkdir -p coverage && cat coverage/backend/lcov.info coverage/frontend/lcov.info > coverage/lcov.info",
+    "coverage:all": "npm run coverage:backend && npm run coverage:frontend && npm run coverage:merge"
   },
   "keywords": [],
   "author": "RP",
@@ -56,9 +57,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "mongodb-memory-server": "^10.2.3",
-    "sonarqube-scanner": "^4.3.0",
-    "supertest": "^7.1.4",
-    "mongodb-memory-server": "^10.2.3"
-
+    "sonarqube-scanner": "^4.3.2",
+    "supertest": "^7.1.4"
   }
 }
