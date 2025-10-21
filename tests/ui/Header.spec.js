@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "../fixtures/testData.js";
 
 const MOCK_CATEGORIES = [
   { _id: '1', name: 'Electronics', slug: 'electronics' },
@@ -42,7 +42,6 @@ test.describe('Header (anonymous user)', () => {
     await page.getByPlaceholder(/search/i).fill('nov');
     await page.getByRole('button', { name: /search/i }).click();
 
-    // Adjust this assertion to your SearchInput’s actual navigation behavior.
     // Many implementations route to /search with a query or state.
     await expect(page).toHaveURL(/\/search/i);
   });
@@ -71,51 +70,95 @@ test.describe('Header (anonymous user)', () => {
 });
 
 
-// we are doing real UI login here because we want to test the second dropdown of the Header with logged-in user menu
-async function uiLogin(page) {
-  await page.goto('/login');
+test.describe.configure({ mode: "serial" });
 
-  // Fill the form using your data-testids
-  await page.getByTestId('login-email-input').fill('admin@test.sg');
-  await page.getByTestId('login-password-input').fill('admin@test.sg');
+const baseUrl = "http://localhost:3000";
 
-  // Submit and wait for the app to finish navigating/fetching
-  await Promise.all([
-    page.waitForLoadState('networkidle'),
-    page.getByTestId('login-submit-button').click(),
-  ]);
-
-  // Most apps redirect to "/" after login
-  await expect(page).toHaveURL(/\/$/);
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-test.describe('Header logged-in user menu (integration)', () => {
-  test('user dropdown -> Dashboard, then Logout', async ({ page }) => {
-    // 1) Login through UI (real backend)
+async function uiLogin(page) {
+  await page.goto(`${baseUrl}/login`);
+
+  await page.getByTestId("login-email-input").fill("admin@test.com");
+  await page.getByTestId("login-password-input").fill("password123");
+
+  await Promise.all([
+    page.waitForLoadState("networkidle"),
+    page.getByTestId("login-submit-button").click(),
+  ]);
+
+  await expect(page).toHaveURL(/(\/$|\/dashboard)/i);
+}
+
+async function getUserToggle(page) {
+  // Read what the header will actually render
+  const display = await page.evaluate(() => {
+    const raw = localStorage.getItem("auth");
+    if (!raw) return null;
+    try {
+      const obj = JSON.parse(raw);
+      return obj?.user?.name || obj?.user?.email || null;
+    } catch {
+      return null;
+    }
+  });
+
+  if (display) {
+    const rx = new RegExp(`^${escapeRegex(display)}$`, "i");
+    const toggleByText = page.getByRole("link", { name: rx });
+    if (await toggleByText.count()) return toggleByText;
+  }
+
+  // Fallback: pick the dropdown toggle that is NOT "Categories"
+  const toggles = page.locator(".nav-item.dropdown .dropdown-toggle");
+  const count = await toggles.count();
+  for (let i = 0; i < count; i++) {
+    const txt = (await toggles.nth(i).innerText()).trim();
+    if (!/^\s*categories\s*$/i.test(txt)) return toggles.nth(i);
+  }
+  // Final fallback (shouldn’t happen): second dropdown (first is Categories)
+  return toggles.nth(1);
+}
+
+test.describe("Header logged-in user menu", () => {
+  test.beforeEach(async ({ testData, page }) => {
+    await testData.seedAll();
+    await page.goto(baseUrl);
+  });
+
+  test("user dropdown → Dashboard → Logout", async ({ page }) => {
+    // 1) Login through real UI
     await uiLogin(page);
 
-    // 2) Find the user dropdown toggle in the header
-    const userToggle = page
-      .locator('.nav-item.dropdown .dropdown-toggle')
-      .filter({ hasText: /admin/i });
-
+    // 2) Locate the user dropdown toggle robustly
+    const userToggle = await getUserToggle(page);
     await expect(userToggle).toBeVisible();
 
-    // 3) Open dropdown and click "Dashboard"
+    // 3) Open dropdown and go to Dashboard
     await userToggle.click();
-    const userMenu = page.locator('.dropdown-menu').last();
-    await expect(userMenu).toBeVisible();
+    const menu = page.locator(".dropdown-menu").last();
+    await expect(menu).toBeVisible();
 
-    await userMenu.getByRole('link', { name: /dashboard/i }).click();
-    // Works for admin or user role
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: "networkidle" }),
+      menu.getByRole("link", { name: /dashboard/i }).click(),
+    ]);
     await expect(page).toHaveURL(/\/dashboard\/(admin|user)\/?$/i);
 
-    // 4) Go back, open again, click "Logout" -> land on /login
+    // 4) Back, open again, Logout → /login and auth cleared
     await page.goBack();
     await userToggle.click();
-    await expect(userMenu).toBeVisible();
+    await expect(menu).toBeVisible();
 
-    await userMenu.getByRole('link', { name: /logout/i }).click();
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: "networkidle" }),
+      menu.getByRole("link", { name: /logout/i }).click(),
+    ]);
     await expect(page).toHaveURL(/\/login$/i);
+
+    const auth = await page.evaluate(() => localStorage.getItem("auth"));
+    expect(auth).toBeNull();
   });
 });
