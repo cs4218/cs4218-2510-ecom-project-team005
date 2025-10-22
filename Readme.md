@@ -22,13 +22,13 @@ We splitted workload according to the recommended scope for a five persion team 
 | **Jimmy** | admin-category-crud.spec.js |
 | **Ridwan** | |
 | **Arda** | |
-| **Adnan** | |
+| **Adnan** | authHelper.integration.test.js, authController.mockDB.integration.test.js, authController.fullDB.integration.test.js
 
 ### E2E UI Testing
 | Name | List of files by person, integration testing |
 | :--- | :--- |
 | **Jakob** | category-browsing.test.js, checkout-flow.test.js, product-details.test.js |
 | **Jimmy** | admin-category-crud.spec.js, About.spec.js, Footer.spec.js, Header.spec.js, Policy.spec.js |
-| **Ridwan** | |
+| **Ridwan** | | 
 | **Arda** | |
-| **Adnan** | |
+| **Adnan** | Register.spec.js, Login.spec.js, auth.e2e.spec.js, search-flow.spec.js
