@@ -1,6 +1,11 @@
 import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 
 
+/*
+The Integration test strategy is self-made and given to the AI.
+OpenAi's ChatGPT was used to generate some of the code. The prompts varied from giving the test cases which it should write code for to actually asking for more test cases.
+ */
+
 describe("Auth Helpers Integration Tests", () => {
     test("hashPassword should return a hashed string different from original", async () => {
         const password = "mySecret123";

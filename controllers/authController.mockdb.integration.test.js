@@ -37,6 +37,11 @@ const { registerController, loginController, forgotPasswordController } =
 const userModel = (await import("../models/userModel.js")).default;
 const JWT = (await import("jsonwebtoken")).default;
 
+/*
+The Integration test strategy is self-made and given to the AI.
+OpenAi's ChatGPT was used to generate some of the code. The prompts varied from giving the test cases which it should write code for to actually asking for more test cases.
+ */
+
 // ------------------ TEST SUITE --------------------------------------
 describe("Auth Controllers Integration Tests (helpers real, DB mocked)", () => {
     let req, res;

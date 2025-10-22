@@ -2,6 +2,10 @@ import { test, expect } from '../fixtures/testData.js';
 
 const baseUrl = "http://localhost:3000";
 
+/*
+OpenAi's ChatGPT was used to generate some of the code. The prompts varied from giving the test cases which it should write code for to actually asking for more test cases.
+ */
+
 test.describe("E2E - Search Flow", () => {
 
     test.beforeEach(async ({ testData, page }) => {

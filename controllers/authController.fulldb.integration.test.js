@@ -18,6 +18,11 @@ import {
 // ----------------------
 let mongoServer;
 
+/*
+The Integration test strategy is self-made and given to the AI.
+OpenAi's ChatGPT was used to generate some of the code. The prompts varied from giving the test cases which it should write code for to actually asking for more test cases.
+ */
+
 beforeAll(async () => {
     if (mongoose.connection.readyState) {
         await mongoose.disconnect();

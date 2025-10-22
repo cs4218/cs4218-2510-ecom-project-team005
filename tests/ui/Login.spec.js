@@ -1,5 +1,9 @@
 import { test, expect } from "../fixtures/testData.js"; // provides testData.seedAll()
 
+
+/*
+OpenAi's ChatGPT was used to generate some of the code. The prompts varied from giving the test cases which it should write code for to actually asking for more test cases.
+ */
 test.describe("UI - Login Page", () => {
     test.beforeEach(async ({ page, testData, context }) => {
         // Ensure memory DB seeded for consistent data (users, etc.)
