@@ -21,7 +21,7 @@ We splitted workload according to the recommended scope for a five persion team 
 | **Jakob** | productController.integration.test.js (productController.js), brainTreeController.integration.test.js (productController.js)|
 | **Jimmy** | admin-category-crud.spec.js |
 | **Ridwan** | |
-| **Arda** | |
+| **Arda** | userModel.integration.test.js, categoryModel.integration.test.js, categoryController.integration.test.js, createProductController.integration.test.js, updateProductController.integration.test.js, deleteProductController.integration.test.js, Categories.integration.test.js, Dashboard.integration.test.js, Products.integration.test.js, Private.integration.test.js |
 | **Adnan** | authHelper.integration.test.js, authController.mockDB.integration.test.js, authController.fullDB.integration.test.js
 
 ### E2E UI Testing
@@ -30,5 +30,5 @@ We splitted workload according to the recommended scope for a five persion team 
 | **Jakob** | category-browsing.test.js, checkout-flow.test.js, product-details.test.js |
 | **Jimmy** | admin-category-crud.spec.js, About.spec.js, Footer.spec.js, Header.spec.js, Policy.spec.js |
 | **Ridwan** | | 
-| **Arda** | |
+| **Arda** | order-history.test.js, admin-create-product.test.js, admin-delete-product.test.js, admin-category-crud.test.js, user-profile-update.test.js, logout-session-cleanup.test.js |
 | **Adnan** | Register.spec.js, Login.spec.js, auth.e2e.spec.js, search-flow.spec.js
