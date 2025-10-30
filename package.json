@@ -19,7 +19,8 @@
     "coverage:backend": "cross-env SKIP_DB_CONNECTION=true SKIP_SERVER_START=true node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --runInBand",
     "coverage:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage --runInBand",
     "coverage:merge": "mkdir -p coverage && cat coverage/backend/lcov.info coverage/frontend/lcov.info > coverage/lcov.info",
-    "coverage:all": "npm run coverage:backend && npm run coverage:frontend && npm run coverage:merge"
+    "coverage:all": "npm run coverage:backend && npm run coverage:frontend && npm run coverage:merge",
+    "reset-db": "node jmeter-data/reset-db.js"
   },
   "keywords": [],
   "author": "RP",

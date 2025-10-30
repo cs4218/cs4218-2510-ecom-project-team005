@@ -40,7 +40,12 @@ const connectDB = async () => {
             ? await waitForMongoUri()
             : process.env.MONGO_URL;
 
-        const conn = await mongoose.connect(mongoUrl);
+        const conn = await mongoose.connect(mongoUrl, {
+            maxPoolSize: 100,        // Allow up to 100 concurrent connections
+            minPoolSize: 10,         // Keep at least 10 connections ready
+            socketTimeoutMS: 45000,  // Close sockets after 45s of inactivity
+            serverSelectionTimeoutMS: 5000,
+          });
         console.log(`Connected To Mongodb Database ${conn.connection.host}`.bgMagenta.white);
     } catch (error) {
         console.log(`Error in Mongodb ${error}`.bgRed.white);
