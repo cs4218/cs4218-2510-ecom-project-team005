@@ -283,3 +283,47 @@ export const orderStatusController = async (req, res) => {
     });
   }
 };
+
+//order count
+export const getOrdersCountController = async (req, res) => {
+  try {
+    const total = await orderModel.find({}).estimatedDocumentCount();
+    res.status(200).send({
+      success: true,
+      total,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error counting orders",
+      error: error.message,
+      success: false,
+    });
+  }
+};
+
+//orders list with pagination
+export const getOrdersListController = async (req, res) => {
+  try {
+    const perPage = 10;
+    const page = Math.max(1, parseInt(req.params.page) || 1);
+    const orders = await orderModel
+      .find({})
+      .populate("products", "-photo")
+      .populate("buyer", "name")
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .sort({ createdAt: -1 });
+    res.status(200).send({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error listing orders",
+      error: error.message,
+    });
+  }
+};

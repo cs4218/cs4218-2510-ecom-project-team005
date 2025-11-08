@@ -6,6 +6,7 @@ import Layout from "../../components/Layout";
 import { useAuth } from "../../context/auth";
 import moment from "moment";
 import { Select } from "antd";
+import { AiOutlineReload } from "react-icons/ai";
 const { Option } = Select;
 
 const AdminOrders = () => {
@@ -19,24 +20,65 @@ const AdminOrders = () => {
   const [changeStatus, setCHangeStatus] = useState("");
   const [orders, setOrders] = useState([]);
   const [auth, setAuth] = useAuth();
-  const getOrders = async () => {
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  //get total count
+  const getTotal = async () => {
     try {
-      const { data } = await axios.get("/api/v1/auth/all-orders");
-      setOrders(data);
+      const { data } = await axios.get("/api/v1/auth/orders-count");
+      setTotal(data?.total);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const getOrders = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/v1/auth/orders-list/${page}`);
+      setLoading(false);
+      setOrders(data.orders);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    if (auth?.token) getOrders();
+    if (auth?.token) {
+      getOrders();
+      getTotal();
+    }
   }, [auth?.token]);
+
+  useEffect(() => {
+    if (page === 1) return;
+    loadMore();
+  }, [page]);
+
+  //load more
+  const loadMore = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/v1/auth/orders-list/${page}`);
+      setLoading(false);
+      setOrders([...orders, ...data?.orders]);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   const handleChange = async (orderId, value) => {
     try {
       const { data } = await axios.put(`/api/v1/auth/order-status/${orderId}`, {
         status: value,
       });
+      // Refresh current view
+      setPage(1);
+      setOrders([]);
       getOrders();
     } catch (error) {
       console.log(error);
@@ -110,6 +152,26 @@ const AdminOrders = () => {
               </div>
             );
           })}
+          <div className="m-2 p-3">
+            {orders && orders.length < total && (
+              <button
+                className="btn btn-primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(page + 1);
+                }}
+              >
+                {loading ? (
+                  "Loading ..."
+                ) : (
+                  <>
+                    {" "}
+                    Load More <AiOutlineReload />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Layout>
