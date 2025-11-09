@@ -9,6 +9,11 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 
+// MS3 SECURITY: Import security configuration and middleware
+import { helmetConfig, getCorsConfig, getTestCorsConfig } from "./config/security.js";
+import { notFound, errorHandler } from "./middlewares/errorMiddleware.js";
+import { setSecurityHeaders } from "./middlewares/securityHeaders.js";
+
 // 1. Load environment variables
 dotenv.config();
 
@@ -20,25 +25,44 @@ if (process.env.SKIP_DB_CONNECTION !== "true") {
   connectDB();
 }
 
-// 3. Middlewares
-app.use(cors());
+// 3. MS3 SECURITY: Disable X-Powered-By header at app level
+app.disable('x-powered-by');
+
+// 4. MS3 SECURITY: Apply security middlewares BEFORE routes
+// Order matters: Helmet → CORS → Security Headers → Routes → Error Handlers
+
+// MS3 SECURITY: Helmet for comprehensive security headers (CSP, X-Frame-Options, etc.)
+app.use(helmetConfig);
+
+// MS3 SECURITY: CORS configuration with explicit origin allowlist (no wildcards)
+const corsConfig = process.env.NODE_ENV === 'test' ? getTestCorsConfig() : getCorsConfig();
+app.use(cors(corsConfig));
+
+// MS3 SECURITY: Explicit security headers as safety net
+app.use(setSecurityHeaders);
+
+// 5. Standard middlewares
 app.use(express.json());
 app.use(morgan("dev"));
 
-// 4. Routes
+// 6. Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 
-// 5. Root endpoint
+// 7. Root endpoint
 app.get("/", (req, res) => {
   res.send("<h1>Welcome to ecommerce app</h1>");
 });
 
-// 6. Port config
+// 8. MS3 SECURITY: Error handling middleware (MUST be after routes)
+app.use(notFound);
+app.use(errorHandler);
+
+// 9. Port config
 const PORT = process.env.PORT || 6060;
 
-// 7. Jalankan server hanya jika bukan unit/integration test
+// 10. Start server only if not in unit/integration test mode
 // E2E tests need the server running (started by webServer in playwright.config.js)
 if (process.env.SKIP_SERVER_START !== "true") {
   app.listen(PORT, () => {
@@ -48,5 +72,5 @@ if (process.env.SKIP_SERVER_START !== "true") {
   });
 }
 
-// 8. Export app untuk digunakan oleh testing
+// 11. Export app for testing
 export default app;
